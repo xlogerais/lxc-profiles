@@ -1,0 +1,42 @@
+name: traefik
+description: Install traefik
+config:
+  cloud-init.user-data: |
+    #cloud-config
+
+    write_files:
+      - path: "/etc/traefik/traefik.yaml"
+        owner: traefik:traefik
+        permissions: "0644"
+        content: |
+          ## Static configuration
+          entryPoints:
+            web:
+              address: ":80"
+              http:
+                redirections:
+                  entryPoint:
+                    to: websecure
+                    scheme: https
+          
+            websecure:
+              address: ":443"
+          
+          providers:
+            file:
+              directory: "./dynamic"
+          
+          log:
+            level: DEBUG
+          
+          accessLog:
+            filePath: "/var/log/traefik/access.log.json"
+            format: "json"
+          api:
+            # Dashboard
+            #
+            # Optional
+            # Default: true
+            #
+            dashboard: true
+            insecure: true

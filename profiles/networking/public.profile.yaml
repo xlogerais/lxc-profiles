@@ -1,0 +1,7 @@
+name: public
+description: Profile that provide a network interface attached to the public bridge
+devices:
+  eth0:
+    nictype: bridged
+    parent: public
+    type: nic

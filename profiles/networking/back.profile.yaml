@@ -1,0 +1,7 @@
+name: back
+description: Profile that provide a network interface attached to the back bridge
+devices:
+  eth0:
+    nictype: bridged
+    parent: back
+    type: nic

@@ -1,0 +1,7 @@
+name: home
+description: Profile that provide a network interface attached to the home bridge
+devices:
+  eth0:
+    nictype: bridged
+    parent: home
+    type: nic

@@ -1,0 +1,17 @@
+name: postgresql
+description: Install postgresql
+config:
+  cloud-init.vendor-data: |
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+    timezone: Europe/Paris
+    locale: fr_FR.UTF-8
+    users:
+      - default
+      - name: postgres
+        groups: sudo
+        shell: /bin/bash
+        sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    runcmd:
+      - [ snap, install, postgresql96 ]

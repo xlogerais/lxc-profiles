@@ -1,0 +1,7 @@
+name: front
+description: Profile that provide a network interface attached to the front bridge
+devices:
+  eth0:
+    nictype: bridged
+    parent: front
+    type: nic

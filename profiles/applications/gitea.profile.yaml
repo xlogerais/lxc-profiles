@@ -1,0 +1,42 @@
+name: gitea
+description: Install gitea
+config:
+  cloud-init.vendor-data: |
+    #cloud-config
+
+    timezone: Europe/Paris
+    locale: fr_FR.UTF-8
+
+    # Packages
+    package_update: true
+    package_upgrade: true
+    packages:
+      - unzip
+
+    # Users
+    users:
+      - default
+      - name: gitea
+        groups: sudo
+        shell: /bin/bash
+        sudo: ['ALL=(ALL) NOPASSWD:ALL']
+
+    # Configure second network interface
+    write_files:
+      - path: "/etc/netplan/eth1.yaml"
+        permissions: "0755"
+        content: |
+          network:
+            version: 2
+            ethernets:
+              eth1:
+                dhcp4: true
+
+    runcmd:
+      # Apply network config
+      - [ netplan, generate ]
+      - [ netplan, apply ]
+
+      # Install gitea
+      - [ snap, install, gitea ]
+

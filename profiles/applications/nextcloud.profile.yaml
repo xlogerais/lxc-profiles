@@ -1,0 +1,33 @@
+name: nextcloud
+description: Install Nextcloud
+config:
+  cloud-init.vendor-data: |
+    #cloud-config
+
+    # Regional settings
+    timezone: Europe/Paris
+    locale: fr_FR.UTF-8
+
+    # Packages
+    package_update: true
+    package_upgrade: true
+    packages: []
+
+    # Users
+    users:
+      - default
+      - name: nextcloud
+        groups: sudo
+        shell: /bin/bash
+        sudo: ['ALL=(ALL) NOPASSWD:ALL']
+
+    runcmd:
+      # Install Nextcloud
+      - [ snap, install, nextcloud ]
+
+devices:
+  nextcloud-data:
+    type: disk
+    pool: zfs
+    source: nextcloud-data
+    path: /var/snap/nextcloud

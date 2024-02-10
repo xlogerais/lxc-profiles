@@ -1,0 +1,17 @@
+name: postgresql
+description: Install postgresql
+config:
+  cloud-init.vendor-data: |
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+    packages:
+      - postgresql
+    timezone: Europe/Paris
+    locale: fr_FR.UTF-8
+devices:
+  postgresql-data:
+    type: disk
+    pool: zfs
+    source: postgresql-data
+    path: /var/lib/postgresql

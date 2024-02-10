@@ -1,0 +1,12 @@
+name: frontback
+description: Profile that provide a network interface attached to the front bridge
+  and a network interface attached to the back bridge
+devices:
+  eth0:
+    nictype: bridged
+    parent: front
+    type: nic
+  eth1:
+    nictype: bridged
+    parent: back
+    type: nic

@@ -1,0 +1,6 @@
+name: zfs
+description: ""
+driver: zfs
+config:
+  source: lxd
+  zfs.pool_name: lxd

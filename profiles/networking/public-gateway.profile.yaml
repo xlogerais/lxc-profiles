@@ -1,15 +1,16 @@
-name: frontback
-description: Profile that provide a network interface attached to the front bridge
-  and a network interface attached to the back bridge
+name: public-gateway
+description: Network configuration for public gateway (attached to both public and front networks)
 devices:
   eth0:
+    name: eth0
+    type: nic
+    nictype: bridged
+    parent: public
+  eth1:
+    name: eth1
+    type: nic
     nictype: bridged
     parent: front
-    type: nic
-  eth1:
-    nictype: bridged
-    parent: back
-    type: nic
 config:
   cloud-init.network-config: |
     version: 1

@@ -1,0 +1,11 @@
+config: {}
+description: ""
+devices:
+  certificates:
+    path: /certificates
+    shift: "true"
+    source: /etc/letsencrypt/live
+    type: disk
+name: certificates
+used_by:
+- /1.0/instances/docker?project=docker

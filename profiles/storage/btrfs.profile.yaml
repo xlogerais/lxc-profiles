@@ -1,0 +1,7 @@
+name: zfs
+description: "root device on zfs pool"
+devices:
+  root:
+    type: disk
+    pool: zfs
+    path: /

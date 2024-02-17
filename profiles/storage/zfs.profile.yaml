@@ -1,6 +1,7 @@
-name: zfs
-description: ""
-driver: zfs
-config:
-  source: lxd
-  zfs.pool_name: lxd
+name: btrfs
+description: "root device on btrfs pool"
+devices:
+  root:
+    type: disk
+    pool: btrfs
+    path: /

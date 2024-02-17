@@ -1,0 +1,7 @@
+name: proxy-https
+description: Proxify https traffic to the instance
+devices:
+  hostport443:
+    type: proxy
+    listen: tcp:0.0.0.0:443
+    connect: tcp:127.0.0.1:443

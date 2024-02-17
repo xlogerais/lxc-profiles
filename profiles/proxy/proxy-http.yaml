@@ -1,0 +1,7 @@
+name: proxy-http
+description: Proxify http traffic to the instance
+devices:
+  hostport80:
+    type: proxy
+    listen: tcp:0.0.0.0:80
+    connect: tcp:127.0.0.1:80

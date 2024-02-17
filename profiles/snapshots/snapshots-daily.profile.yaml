@@ -1,0 +1,5 @@
+name: snapshots-daily
+description: "Take an automatic snapshot daily and keep it for 2 weeks"
+config:
+  snapshots.schedule: '@daily'
+  snapshots.expiry: 2w

@@ -1,0 +1,5 @@
+name: snapshots-weekly
+description: "Take an automatic snapshot weekly and keep it for 1 mounth"
+config:
+  snapshots.schedule: '@weekly'
+  snapshots.expiry: 1M

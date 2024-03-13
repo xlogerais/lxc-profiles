@@ -1,0 +1,5 @@
+name: size-medium
+description: "Medium sized instance limits"
+limits:
+  cpu: 2
+  memory: 4GB

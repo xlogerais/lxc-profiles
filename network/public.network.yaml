@@ -1,0 +1,12 @@
+name: public
+description: "Public network"
+type: bridge
+managed: true
+config:
+  dns.domain: public.lxd
+  dns.zone.forward: public.lxd
+  ipv4.address: 10.112.88.1/24
+  ipv4.nat: "true"
+  ipv6.address: 2001:41d0:a:3568::5/64
+  ipv6.nat: "false"
+  ipv6.dhcp.stateful: true

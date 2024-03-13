@@ -1,0 +1,8 @@
+name: docker-volume-data
+description: "A profile that add a volume for docker data"
+devices:
+  docker-data:
+    type: disk
+    pool: btrfs
+    source: docker-data
+    path: /var/lib/docker

@@ -1,0 +1,110 @@
+name: app-pydio
+description: Install pydio cells
+config:
+  cloud-init.vendor-data: |
+    #cloud-config
+
+    timezone: Europe/Paris
+    locale: fr_FR.UTF-8
+
+    # Packages
+    package_update: true
+    package_upgrade: true
+    packages:
+      - tar
+      - unzip
+      - wget
+      - git
+
+    # Users
+    users:
+      - default
+      - name: pydio
+        groups: sudo
+        shell: /bin/bash
+        sudo: ['ALL=(ALL) NOPASSWD:ALL']
+
+    write_files:
+      - path: "/etc/systemd/system/pydio.service"
+        owner: root:root
+        permissions: "0644"
+        content: |
+          [Unit]
+          Description=Pydio Cells
+          Documentation=https://pydio.com
+          Wants=network-online.target
+          After=network-online.target
+          AssertFileIsExecutable=/opt/pydio/bin/cells
+
+          [Service]
+          User=pydio
+          Group=pydio
+          WorkingDirectory=/home/pydio
+          PermissionsStartOnly=true
+
+          AmbientCapabilities=CAP_NET_BIND_SERVICE
+          ExecStart=/opt/pydio/bin/cells start
+          Restart=on-failure
+          StandardOutput=journal
+          StandardError=inherit
+          LimitNOFILE=65536
+          TimeoutStopSec=5
+          KillSignal=INT
+          SendSIGKILL=yes
+          SuccessExitStatus=0
+
+          # Add environment variables
+          Environment=CELLS_WORKING_DIR=/var/pydio/cells
+          Environment=CELLS_ENABLE_METRICS=false
+          Environment=CELLS_SITE_NO_TLS=1
+
+          [Install]
+          WantedBy=multi-user.target
+
+      - path: "/tmp/pydio-install.yaml"
+        content: |
+          # This is the minimal configuration to directly start a pre-configured server in sandbox mode
+          # Adapt to your convenience and report to the documentation to explore further possibilities.
+          # Environment variables are defined in .env file and injected at run time.
+          proxyconfigs:
+            - binds:
+                - 0.0.0.0:8080
+              reverseproxyurl: http://pydio.front.lxd:8080
+
+          # WebUI Admin definition
+          frontendlogin: admin
+          frontendpassword: TOBECHANGED
+
+          # DB connection
+          dbconnectiontype: tcp
+          dbtcphostname: 10.112.17.20
+          dbtcpport: 3306
+          dbtcpname: cells
+          dbtcpuser: pydio
+          dbtcppassword: TOBECHANGED
+
+    runcmd:
+      # Wait for network to be ready
+      - [ sleep, '5' ]
+      # Install pydio cells binary
+      - [ mkdir, '--parents'  , '/opt/pydio/bin' , '/var/pydio/cells' ]
+      - >
+          wget 'https://download.pydio.com/latest/cells/release/%7Blatest%7D/linux-amd64/pydio-cells-%7Blatest%7D-linux-amd64.zip' -O /tmp/pydio-cells.zip
+          && unzip -d /opt/pydio/bin /tmp/pydio-cells.zip cells
+          && rm /tmp/pydio-cells.zip
+      - [ chmod, '+x', '/opt/pydio/bin/cells' ]
+      # Copy pydio install file
+      - [ cp, /tmp/pydio-install.yaml, /home/pydio/install.yaml ]
+      - [ chown, '--recursive', 'pydio:pydio', '/home/pydio', '/opt/pydio' , '/var/pydio/cells' ]
+      # Initial setup
+      - sudo -u pydio -i -- bash -c "CELLS_INSTALL_YAML=/home/pydio/install.yaml CELLS_WORKING_DIR=/var/pydio/cells /opt/pydio/bin/cells configure"
+      # Enable and start the service
+      - [ systemctl, daemon-reload ]
+      - [ systemctl, enable, --now, pydio.service ]
+
+devices:
+  data:
+    type: disk
+    pool: zfs
+    source: pydio-data
+    path: /var/pydio/cells

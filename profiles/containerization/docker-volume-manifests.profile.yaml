@@ -1,0 +1,8 @@
+name: docker-volume-manifests
+description: "A profile that mount a manifests directory from the host"
+devices:
+  manifests:
+    path: /home/ubuntu/manifests
+    shift: "true"
+    source: /home/ubuntu/infra/new/docker/manifests
+    type: disk

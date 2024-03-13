@@ -1,0 +1,25 @@
+name: docker
+description: "A profile that deploy docker in an LXD container"
+config:
+  linux.kernel_modules: overlay
+  raw.lxc: |-
+    lxc.apparmor.profile = unconfined
+    lxc.cgroup.devices.allow = a
+    lxc.mount.auto=proc:rw sys:rw
+    lxc.cap.drop =
+  security.nesting: "true"
+  security.privileged: "true"
+  cloud-init.vendor-data: |
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+    packages:
+      - curl
+    runcmd:
+      - curl https://get.docker.com | sh
+      # Provision two network bridges
+      - sleep 30
+      - docker network create --driver bridge --subnet=172.25.0.0/24 front
+      - docker network create --driver bridge --subnet=172.30.0.0/24 back
+    timezone: Europe/Paris
+    locale: fr_FR.UTF-8

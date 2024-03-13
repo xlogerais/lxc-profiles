@@ -1,0 +1,8 @@
+name: traefik-config
+description: "Volume to mount traefik config dir from host"
+devices:
+  config:
+    type: disk
+    source: /home/ubuntu/infra/new/traefik/config
+    path: /etc/traefik
+    shift: "true"

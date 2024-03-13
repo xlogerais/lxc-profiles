@@ -1,0 +1,7 @@
+name: proxy-taskwarrior
+description: Proxify taskwarrior server tcp traffic to the instance
+devices:
+  hostport53589:
+    type: proxy
+    listen: tcp:0.0.0.0:53589
+    connect: tcp:127.0.0.1:53589

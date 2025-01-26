@@ -17,3 +17,9 @@ lxc config device set microk8s eth0 ipv4.address 10.162.242.10
 
 # Install microk8s inside the container
 lxc exec microk8s -- sudo snap install microk8s --classic
+
+# Connect to the cluster from lxc host
+KUBECONFIG=$(mktemp /tmp/microk8s.config.XXXX)
+lxc exec microk8s microk8s config > "${KUBECONFIG}"
+export KUBECONFIG
+kubectl cluster-info

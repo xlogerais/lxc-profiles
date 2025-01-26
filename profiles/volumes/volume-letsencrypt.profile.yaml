@@ -1,0 +1,9 @@
+name: volume-letsencrypt
+description: "Volume contenant les certificats letsencrypt du host"
+devices:
+  certificates:
+    type: disk
+    source: /etc/letsencrypt
+    path: /etc/letsencrypt
+    shift: "true"
+    readonly: true

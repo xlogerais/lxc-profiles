@@ -1,4 +1,4 @@
-name: traefik
+name: app-traefik
 description: Install traefik
 config:
   cloud-init.vendor-data: |
@@ -152,4 +152,3 @@ config:
       - [ systemctl, enable, traefik.path ]
       - [ systemctl, start, traefik.path ]
       - [ systemctl, start, traefik.service ]
-

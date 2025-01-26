@@ -1,5 +1,5 @@
-name: nextcloud
-description: Install Nextcloud
+name: app-nextcloud
+description: Install nextcloud
 config:
   cloud-init.vendor-data: |
     #cloud-config

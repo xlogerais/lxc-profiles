@@ -1,4 +1,4 @@
-name: btrfs
+name: storage-btrfs
 description: "root device on btrfs pool"
 devices:
   root:

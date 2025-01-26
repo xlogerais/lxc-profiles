@@ -1,0 +1,15 @@
+name: proxy-mailserver
+description: Proxify smtp(s) traffic to the instance
+devices:
+  hostport25:
+    type: proxy
+    listen: tcp:0.0.0.0:25
+    connect: tcp:127.0.0.1:25
+  hostport465:
+    type: proxy
+    listen: tcp:0.0.0.0:465
+    connect: tcp:127.0.0.1:465
+  hostport587:
+    type: proxy
+    listen: tcp:0.0.0.0:587
+    connect: tcp:127.0.0.1:587

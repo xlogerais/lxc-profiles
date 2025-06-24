@@ -1,0 +1,25 @@
+---
+name: user-xavier
+description: Personnal environment for Xavier
+config:
+  cloud-init.user-data: |
+    #cloud-config
+
+    timezone: Europe/Paris
+    locale: fr_FR.UTF-8
+
+    # Packages
+    package_update: true
+    package_upgrade: true
+    packages:
+      - git
+
+    users:
+      - name: xavier
+        groups: sudo
+        shell: /bin/bash
+        sudo: ['ALL=(ALL) NOPASSWD:ALL']
+
+    runcmd:
+      - su - xavier -c "git clone https://gitea.cloud.logerais.com/xavier/config-bootstrap.git --branch switch_to_mise_and_chezmoi ~/.bootstrap"
+      - su - xavier -c "bash ~/.bootstrap/bootstrap.bash"

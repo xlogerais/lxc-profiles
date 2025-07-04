@@ -25,10 +25,10 @@ To update all profiles defined in this repository, run the script without any ar
 
 #### Update specific profiles
 
-To update one or more specific profiles, provide their names as arguments to the script:
+To update one or more specific profiles, provide their file paths as arguments to the script:
 
 ```bash
-./setup-profiles.bash docker traefik
+./setup-profiles.bash profiles/containerization/docker.profile.yaml profiles/applications/traefik.profile.yaml
 ```
 
 This will update only the `docker` and `traefik` profiles.

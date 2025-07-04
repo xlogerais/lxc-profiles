@@ -4,11 +4,25 @@ BASEDIR=$(cd "$(dirname "$0")" && pwd)
 
 echo "BASEDIR=$BASEDIR"
 
-update_profile() {
-    local profile_name="$1"
-    local profile_file="$2"
+# Prerequisite check for yq
+if ! command -v yq &> /dev/null
+then
+    echo "Error: yq is not installed."
+    echo "Please install yq to use this script. Refer to https://github.com/mikefarah/yq#install for installation methods."
+    exit 1
+fi
 
-    echo "--- Profile ${profile_name} ---"
+update_profile() {
+    local profile_file="$1"
+    local profile_name
+    profile_name=$(yq --expression '.name' "$profile_file")
+
+    if [ -z "$profile_name" ]; then
+        echo "Error: Could not extract profile name from $profile_file. Skipping."
+        return 1
+    fi
+
+    echo "--- Profile ${profile_name} (from ${profile_file}) ---"
     if lxc profile show "${profile_name}" &> /dev/null; then
         echo "Profile ${profile_name} already exists. Skipping creation."
     else
@@ -25,19 +39,15 @@ if [ "$#" -eq 0 ]; then
     # No arguments, update all profiles
     echo "No profile specified, updating all profiles..."
     find profiles -type f -name "*.profile.yaml" -print0 | while IFS= read -r -d '' file; do
-        name=$(basename "$file" .profile.yaml)
-        update_profile "$name" "$file"
+        update_profile "$file"
     done
 else
-    # Arguments provided, update specified profiles
-    for profile_name in "$@"; do
-        # Find the profile file. Since the directory structure is nested, use find.
-        profile_file=$(find profiles -type f -name "${profile_name}.profile.yaml" | head -n 1)
-
-        if [ -f "$profile_file" ]; then
-            update_profile "$profile_name" "$profile_file"
+    # Arguments provided, treat them as file paths
+    for file_path in "$@"; do
+        if [ -f "$file_path" ]; then
+            update_profile "$file_path"
         else
-            echo "Profile file for '${profile_name}' not found in 'profiles/' directory."
+            echo "Error: Profile file '$file_path' not found. Skipping."
         fi
     done
 fi

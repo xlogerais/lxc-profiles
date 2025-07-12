@@ -4,13 +4,15 @@ BASEDIR=$(cd "$(dirname "$0")" && pwd)
 
 echo "BASEDIR=$BASEDIR"
 
-# Prerequisite check for yq
-if ! command -v yq &> /dev/null
-then
-    echo "Error: yq is not installed."
-    echo "Please install yq to use this script. Refer to https://github.com/mikefarah/yq#install for installation methods."
-    exit 1
-fi
+check_prerequisites() {
+    # Prerequisite check for yq
+    if ! command -v yq &> /dev/null
+    then
+        echo "Error: yq is not installed."
+        echo "Please install yq to use this script. Refer to https://github.com/mikefarah/yq#install for installation methods."
+        exit 1
+    fi
+}
 
 update_profile() {
     local profile_file="$1"
@@ -34,6 +36,8 @@ update_profile() {
 }
 
 cd "$BASEDIR" || exit
+
+check_prerequisites
 
 if [ "$#" -eq 0 ]; then
     # No arguments, update all profiles

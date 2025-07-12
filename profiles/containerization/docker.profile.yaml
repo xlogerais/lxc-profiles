@@ -17,9 +17,5 @@ config:
       - curl
     runcmd:
       - curl https://get.docker.com | sh
-      # Provision two network bridges
-      - sleep 30
-      - docker network create --driver bridge --subnet=172.25.0.0/24 front
-      - docker network create --driver bridge --subnet=172.30.0.0/24 back
     timezone: Europe/Paris
     locale: fr_FR.UTF-8

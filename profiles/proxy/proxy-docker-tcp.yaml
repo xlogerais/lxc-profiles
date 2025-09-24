@@ -1,4 +1,4 @@
-name: proxy-docker
+name: proxy-docker-tcp
 description: Expose private docker sock via tcp on the host
 devices:
   dockersock:

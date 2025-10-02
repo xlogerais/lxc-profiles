@@ -50,7 +50,7 @@ lxc version
 lxc list
 
 # Create a new container from the manager
-lxc launch ubuntu:22.04 test-container
+lxc launch ubuntu:lts test-container
 
 # Manage the new container
 lxc info test-container

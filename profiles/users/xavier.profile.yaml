@@ -19,7 +19,10 @@ config:
         groups: sudo
         shell: /bin/bash
         sudo: ['ALL=(ALL) NOPASSWD:ALL']
+        ssh_authorized_keys:
+          - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBlon0OAAt/wQmuP/BDY/m4qJgUgNY1a7xXUgPpfCXe4 xavier@intel-nuc-hades-canyon
+          - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMi/CnrkifO0e78Oj1tdLTILc4yuJ18em4W/2fDte9Kq ubuntu@cloud.logerais.com
 
     runcmd:
-      - su - xavier -c "git clone https://gitea.cloud.logerais.com/xavier/config-bootstrap.git --branch switch_to_mise_and_chezmoi ~/.bootstrap"
+      - su - xavier -c "git clone https://gitea.cloud.logerais.com/xavier/config-bootstrap.git ~/.bootstrap"
       - su - xavier -c "bash ~/.bootstrap/bootstrap.bash"

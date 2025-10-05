@@ -1,0 +1,47 @@
+---
+name: ollama
+description: LXD Profile to launch a private ollama instance
+config:
+  linux.kernel_modules: overlay
+  raw.lxc: |-
+    lxc.apparmor.profile = unconfined
+    lxc.cgroup.devices.allow = a
+    lxc.mount.auto=proc:rw sys:rw
+    lxc.cap.drop =
+  security.nesting: "true"
+  security.privileged: "true"
+  security.syscalls.intercept.mknod: "true"
+  security.syscalls.intercept.setxattr: "true"
+  user.vendor-data: |
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+    packages:
+      - curl
+      - avahi-daemon
+    write_files:
+    - path: /etc/systemd/system/ollama.service.d/override.conf
+      content: |
+        [Service]
+        Environment=OLLAMA_HOST=0.0.0.0
+    runcmd:
+      # Install ollama
+      - curl https://ollama.ai/install.sh | sh
+
+      # Setup/fix systemd service unit file for ollama 
+      - systemctl enable ollama.service
+      - systemctl start ollama.service
+
+      # Pull some models
+      - ollama pull tinyllama:chat
+      - ollama pull codellama:7b-instruct
+      - ollama pull codellama:7b-python
+  
+      # Install docker
+      - curl https://get.docker.com | sh
+      # Install ollama-webui
+      - docker run --detach --add-host=host.docker.internal:host-gateway -p 3000:8080 -v ollama-webui:/app/backend/data --restart always --name ollama-webui   ghcr.io/ollama-webui/ollama-webui:main
+      - docker run --detach --add-host=host.docker.internal:host-gateway -p 3001:3000                                   --restart always --name chatbot-ollama ghcr.io/ivanfioravanti/chatbot-ollama:main
+    locale: fr_FR.UTF-8
+    timezone: Europe/Paris
+

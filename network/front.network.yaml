@@ -1,7 +1,7 @@
-type: bridge
-name: front
-description: "Frontend network"
+name: network-front
+description: "Front network"
 managed: true
+type: bridge
 config:
   dns.domain: front.lxd
   dns.zone.forward: front.lxd

@@ -1,0 +1,5 @@
+name: size-small
+description: "Small sized instance limits"
+limits:
+  cpu: 1
+  memory: 2GB

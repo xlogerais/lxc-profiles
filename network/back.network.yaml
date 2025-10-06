@@ -1,3 +1,7 @@
+name: network-back
+description: "Back network"
+managed: true
+type: bridge
 config:
   dns.domain: back.lxd
   dns.zone.forward: back.lxd
@@ -5,15 +9,3 @@ config:
   ipv4.nat: "true"
   ipv6.address: fd42:7d68:cedd:4230::1/64
   ipv6.nat: "true"
-description: ""
-name: back
-type: bridge
-used_by:
-- /1.0/instances/gitea
-- /1.0/instances/postgresql
-- /1.0/profiles/back
-- /1.0/profiles/frontback
-managed: true
-status: Created
-locations:
-- none

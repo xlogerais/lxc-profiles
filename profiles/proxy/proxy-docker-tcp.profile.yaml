@@ -1,7 +1,7 @@
 name: proxy-docker-tcp
 description: Expose private docker sock via tcp on the host
 devices:
-  dockersock:
+  docker:
     type: proxy
     listen: tcp:0.0.0.0:2375
     connect: unix:/run/docker.sock

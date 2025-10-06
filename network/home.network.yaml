@@ -1,7 +1,7 @@
-type: bridge
-name: home
-description: "home network"
+name: network-home
+description: "Home network"
 managed: true
+type: bridge
 config:
   dns.domain: home.lxd
   dns.zone.forward: home.lxd

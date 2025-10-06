@@ -1,7 +1,7 @@
-name: zfs
-description: "root device on zfs pool"
+name: btrfs
+description: "root device on btrfs pool"
 devices:
   root:
     type: disk
-    pool: zfs
+    pool: btrfs
     path: /

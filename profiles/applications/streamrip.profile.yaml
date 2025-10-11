@@ -1,0 +1,49 @@
+name: streamrip
+description: Install streamrip (https://github.com/nathom/streamrip)
+config:
+  cloud-init.vendor-data: |
+    #cloud-config
+
+    # Packages
+    package_update: true
+    package_upgrade: true
+    packages:
+      - curl
+      - python3-venv
+      - build-essential
+      - zlib1g-dev
+      - libjpeg-dev
+
+    users:
+      - name: rip
+        groups: sudo
+        shell: /bin/bash
+        sudo: ['ALL=(ALL) NOPASSWD:ALL']
+
+    write_files:
+      - path: /tmp/setup-mise.bash
+        permissions: '0755'
+        owner: root:root
+        content: |
+          #!/bin/bash
+          echo "This script runs as the user" $(whoami) > /tmp/setup-mise.log
+          exec 2>&1 >> /tmp/setup-mise.log
+
+          # Install mise
+          curl https://mise.run | sh
+          echo 'test -x ~/.local/bin/mise && source <(~/.local/bin/mise activate bash)' >> ~/.bashrc
+
+          # Activate mise
+          test -x ~/.local/bin/mise && source <(~/.local/bin/mise activate bash)
+
+          # Configure mise
+          mise settings set experimental true
+          mise use -g usage # for completion
+
+          # Install streamrip
+          mise use -g python
+          mise use -g pipx
+          mise use -g pipx:streamrip
+
+    runcmd:
+      - sudo -u rip /tmp/setup-mise.bash

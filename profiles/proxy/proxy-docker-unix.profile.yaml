@@ -1,9 +1,8 @@
 name: proxy-docker-unix
 description: Expose the Docker socket as a Unix socket
 devices:
-  docker-socket:
+  docker:
     type: proxy
-    # listen: unix:/tmp/lxd-docker-unix.sock
     listen: unix:/var/run/docker.sock
     connect: unix:/run/docker.sock
     uid: 1000

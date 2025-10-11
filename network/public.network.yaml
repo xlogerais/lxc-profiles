@@ -1,7 +1,7 @@
-name: public
+name: network-public
 description: "Public network"
-type: bridge
 managed: true
+type: bridge
 config:
   dns.domain: public.lxd
   dns.zone.forward: public.lxd

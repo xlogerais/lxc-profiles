@@ -1,9 +1,0 @@
-name: proxy-lxd-unix
-description: Expose the LXD socket as a Unix socket
-devices:
-  docker:
-    type: proxy
-    listen: unix:/var/snap/lxd/common/lxd/unix.socket
-    connect: unix:/var/snap/lxd/common/lxd/unix.socket
-    uid: 1000
-    gid: 1000

@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+#MISE description="Installe ou met à jour des profils du dépôt dans LXD"
+#MISE quiet=true
+#MISE raw=true
+#USAGE arg "[profile]..." help="Nom de profil ou fichier du dépôt (défaut : sélection interactive)"
+#USAGE flag "-a --all" help="Installe / met à jour tous les profils du dépôt"
+#USAGE flag "-y --yes" help="Met à jour sans demander de confirmation"
+#USAGE complete "profile" run="mise run --quiet _names"
+set -uo pipefail
+source "$MISE_PROJECT_ROOT/.mise/lib.sh"
+
+eval "args=(${usage_profile:-})"
+if [ "${#args[@]}" -eq 0 ]; then
+  if [ "${usage_all:-false}" = "true" ]; then
+    mapfile -t args < <(repo_index | cut -f2)
+  else
+    selection=$(repo_index | cut -f2 | pick "Profils à installer (tab : sélection multiple)" --no-limit) || exit 1
+    [ -n "$selection" ] || exit 0
+    mapfile -t args <<<"$selection"
+  fi
+fi
+
+failed=0
+for arg in "${args[@]}"; do
+  file=$(resolve_file "$arg") || { failed=$((failed + 1)); continue; }
+  name=$(profile_name "$file")
+  [ -n "$name" ] || { warn "$file : pas de champ 'name', ignoré"; failed=$((failed + 1)); continue; }
+
+  keys=$(unknown_keys "$file")
+  if [ -n "$keys" ]; then
+    warn "$file : clé(s) inconnue(s) de LXD ($keys), profil ignoré"
+    failed=$((failed + 1))
+    continue
+  fi
+
+  if is_installed "$name"; then
+    if is_same "$file" "$name"; then
+      info "${B}$name${R} : déjà à jour"
+      continue
+    fi
+    echo "${YELLOW}⚠${R} ${B}$name${R} existe déjà et diffère du dépôt :"
+    show_diff "$file" "$name"
+    if [ "${usage_yes:-false}" != "true" ] && ! confirm "Mettre à jour le profil $name ?"; then
+      info "$name : inchangé"
+      continue
+    fi
+  else
+    info "${B}$name${R} : création"
+    lxc profile create "$name" </dev/null || { failed=$((failed + 1)); continue; }
+  fi
+
+  # used_by/project éventuels (fichiers importés) sont retirés avant l'édition
+  if yq 'del(.used_by, .project)' "$file" | lxc profile edit "$name"; then
+    echo "${GREEN}✔${R} ${B}$name${R} : à jour (depuis $file)"
+  else
+    failed=$((failed + 1))
+  fi
+done
+[ "$failed" -eq 0 ] || die "$failed profil(s) en erreur"

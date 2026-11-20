@@ -5,7 +5,7 @@ CONTAINER_NAME="${1:-traefik-container}"
 echo "Creating Traefik container: $CONTAINER_NAME"
 
 # Install the profile using the helper script
-./install.bash profiles/applications/traefik.profile.yaml
+mise run install profiles/applications/traefik.profile.yaml
 
 # Launch the container
 lxc launch ubuntu:lts -p default -p traefik "$CONTAINER_NAME"

@@ -5,7 +5,7 @@ CONTAINER_NAME="${1:-docker-container}"
 echo "Creating Docker container: $CONTAINER_NAME"
 
 # Install the profile using the helper script
-./install.bash profiles/containerization/docker.profile.yaml
+mise run install profiles/containerization/docker.profile.yaml
 
 # Launch the container
 lxc launch ubuntu:lts -p default -p docker "$CONTAINER_NAME"

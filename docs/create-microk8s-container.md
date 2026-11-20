@@ -12,7 +12,7 @@ curl https://gitea.cloud.logerais.com/cloud.logerais.com/lxd-profiles/raw/branch
 Or use the local profile:
 
 ```bash
-./install.bash profiles/containerization/microk8s.profile.yaml
+mise run install profiles/containerization/microk8s.profile.yaml
 ```
 
 ## Launch Container

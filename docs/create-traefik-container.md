@@ -12,7 +12,7 @@ curl https://gitea.cloud.logerais.com/cloud.logerais.com/lxd-profiles/raw/branch
 Or use the local profile:
 
 ```bash
-./install.bash profiles/applications/traefik.profile.yaml
+mise run install profiles/applications/traefik.profile.yaml
 ```
 
 ## Launch Container

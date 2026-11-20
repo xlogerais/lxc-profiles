@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#MISE description="Liste les profils du dépôt et leur état dans LXD"
+#MISE quiet=true
+#USAGE flag "-a --all" help="Affiche aussi les profils installés dans LXD absents du dépôt"
+set -euo pipefail
+source "$MISE_PROJECT_ROOT/.mise/lib.sh"
+
+installed=$(lxc profile list --format csv --columns n,u 2>/dev/null) || die "Impossible d'interroger LXD (lxc profile list)"
+
+declare -A used
+while IFS=, read -r n u; do used[$n]=$u; done <<<"$installed"
+
+declare -A seen
+same=0; changed=0; absent=0
+printf "  ${B}%-2s %-26s %-8s %s${R}\n" "" "PROFIL" "UTILISÉ" "FICHIER"
+while IFS=$'\t' read -r name file; do
+  extra=""
+  if [ -n "${seen[$name]:-}" ]; then
+    extra=" ${RED}(nom en double : ${seen[$name]})${R}"
+  fi
+  seen[$name]=$file
+  if [ -z "${used[$name]+x}" ]; then
+    printf "  %-2s ${D}%-26s %-8s %s${R}%s\n" "⬜" "$name" "-" "$file" "$extra"
+    absent=$((absent + 1))
+  elif is_same "$file" "$name"; then
+    printf "  %-2s ${GREEN}%-26s${R} %-8s %s%s\n" "✅" "$name" "${used[$name]}" "$file" "$extra"
+    same=$((same + 1))
+  else
+    printf "  %-2s ${YELLOW}%-26s${R} %-8s %s%s\n" "⚠️" "$name" "${used[$name]}" "$file" "$extra"
+    changed=$((changed + 1))
+  fi
+done < <(repo_index)
+
+others=()
+for n in "${!used[@]}"; do [ -n "${seen[$n]:-}" ] || others+=("$n"); done
+if [ "${usage_all:-false}" = "true" ] && [ "${#others[@]}" -gt 0 ]; then
+  printf "\n  ${B}Hors dépôt${R} ${D}(mise run import <profil>)${R}\n"
+  while IFS= read -r n; do
+    printf "  %-2s ${CYAN}%-26s${R} %-8s\n" "🔹" "$n" "${used[$n]}"
+  done < <(printf '%s\n' "${others[@]}" | sort)
+fi
+
+echo
+echo "  ✅ ${same} à jour   ⚠️  ${changed} différent(s) ${D}(mise run diff)${R}   ⬜ ${absent} non installé(s)   🔹 ${#others[@]} hors dépôt${D}$([ "${usage_all:-false}" = "true" ] || echo ' (--all)')${R}"

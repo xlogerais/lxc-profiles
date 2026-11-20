@@ -5,7 +5,7 @@ CONTAINER_NAME="${1:-lxd-manager}"
 echo "Creating LXD manager container: $CONTAINER_NAME"
 
 # Install the profile using the helper script
-./install.bash profiles/containerization/lxd-host-socket.profile.yaml
+mise run install profiles/containerization/lxd-host-socket.profile.yaml
 
 # Launch the container
 lxc launch ubuntu:lts -p default -p lxd-host-socket "$CONTAINER_NAME"

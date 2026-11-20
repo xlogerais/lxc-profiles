@@ -1,0 +1,35 @@
+[settings]
+# Nécessaire pour les hooks (enter)
+experimental = true
+
+[hooks]
+enter = "mise run --quiet welcome"
+
+# Les autres tâches (list, diff, install, import) sont dans .mise/tasks/
+[tasks.welcome]
+description = "Affiche un message d'usage basique"
+quiet = true
+run = '''
+b=$(printf '\033[1m'); d=$(printf '\033[2m'); c=$(printf '\033[36m'); r=$(printf '\033[0m')
+cat <<MSG
+
+  ${c}╭────────────────────────────────────────────────────────╮${r}
+  ${c}│${r}  📦 ${b}lxd-profiles${r} · profils et réseaux LXD              ${c}│${r}
+  ${c}╰────────────────────────────────────────────────────────╯${r}
+
+  🗂️  ${b}Profils${r}
+     ▸ mise run list [--all]          ${d}profils du dépôt et état dans LXD (✅ ⚠️ ⬜ 🔹)${r}
+     ▸ mise run diff [profil...]      ${d}diff installé (LXD) → dépôt${r}
+     ▸ mise run install [profil...]   ${d}crée / met à jour (diff + confirmation, --all, --yes)${r}
+     ▸ mise run import [profil] [f]   ${d}exporte un profil LXD vers le dépôt (puis git diff)${r}
+
+  ${d}profil = nom (ex. docker) ou fichier (ex. profiles/containerization/docker.profile.yaml)${r}
+  💡 ${d}mise tasks pour lister toutes les tâches${r}
+
+MSG
+'''
+
+[tools]
+delta = "latest"
+gum = "latest"
+yq = "latest"

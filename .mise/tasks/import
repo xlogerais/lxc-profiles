@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#MISE description="Importe un profil installé dans LXD vers un fichier du dépôt"
+#MISE quiet=true
+#USAGE arg "[profile]" help="Nom du profil LXD (défaut : sélection interactive)"
+#USAGE arg "[file]" help="Fichier de destination (défaut : fichier existant du dépôt, sinon profiles/<profil>.profile.yaml)"
+#USAGE complete "profile" run="lxc profile list --format csv --columns n"
+set -euo pipefail
+source "$MISE_PROJECT_ROOT/.mise/lib.sh"
+
+name="${usage_profile:-}"
+[ -n "$name" ] || name=$(lxc profile list --format csv --columns n | pick "Profil LXD à importer")
+is_installed "$name" || die "Profil '$name' absent de LXD"
+
+file="${usage_file:-}"
+if [ -z "$file" ]; then
+  file=$(repo_index | awk -F'\t' -v n="$name" '$1 == n { print $2; exit }')
+  file="${file:-profiles/$name.profile.yaml}"
+fi
+
+mkdir -p "$(dirname "$file")"
+# Champs en lecture seule ou propres à l'installation retirés,
+# ainsi que config/devices vides, pour un fichier minimal.
+lxc profile show "$name" \
+  | yq '
+      del(.used_by, .project)
+      | del(.config | select(length == 0))
+      | del(.devices | select(length == 0))
+    ' >"$file"
+
+echo "${GREEN}✔${R} ${B}$name${R} → $file"
+if git -C "$MISE_PROJECT_ROOT" ls-files --error-unmatch "$file" >/dev/null 2>&1; then
+  git -C "$MISE_PROJECT_ROOT" --no-pager diff --stat -- "$file"
+  echo "  ${D}git diff -- $file pour le détail${R}"
+else
+  echo "  ${D}nouveau fichier (non suivi par git)${R}"
+fi

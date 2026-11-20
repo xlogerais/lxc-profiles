@@ -1,5 +1,5 @@
 name: size-large
-description: Large sized instance limits
+description: Large sized instance limits (4 CPU, 8GB RAM)
 config:
   limits.cpu: "4"
   limits.memory: 8GB

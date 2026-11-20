@@ -1,0 +1,35 @@
+name: microk8s-config
+description: "A profile that add cloud-init user data to bootstrap microk8s with some config"
+devices: {}
+config:
+  cloud-init.user-data: |
+    #cloud-config
+    #
+    # Creates a launch file for microk8s
+    #
+    write_files:
+      - path: "/var/snap/microk8s/common/.microk8s.yaml"
+        owner: root:root
+        permissions: "0644"
+        content: |
+          ---
+          version: 0.1.0
+          addons:
+            - name: rbac
+            - name: dns
+            - name: ingress
+              disable: true
+            - name: cert-manager
+            - name: hostpath-storage
+            - name: metrics-server
+            - name: dashboard
+
+
+          # The extra arguments listed here are not required, as they would be set by the 'rbac' and the 'dns'
+          # addons respectively. However, we set them to save time by not having to restart the Kubernetes
+          # services a few times during cluster bootstrap.
+          # extraKubeAPIServerArgs:
+          #   --authorization-mode: RBAC,Node
+          # extraKubeletArgs:
+          #   --cluster-dns: 10.152.183.10
+          #   --cluster-domain: cluster.local

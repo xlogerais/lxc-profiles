@@ -21,6 +21,3 @@ config:
   security.nesting: "true"
   security.privileged: "true"
 devices: {}
-used_by:
-- /1.0/instances/dokploy
-project: default

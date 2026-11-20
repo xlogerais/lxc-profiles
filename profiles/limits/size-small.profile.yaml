@@ -1,5 +1,5 @@
 name: size-small
-description: "Small sized instance limits"
-limits:
-  cpu: 1
-  memory: 2GB
+description: Small sized instance limits
+config:
+  limits.cpu: "1"
+  limits.memory: 2GB

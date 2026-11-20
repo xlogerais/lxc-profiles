@@ -1,5 +1,5 @@
-name: postgresql
-description: Install postgresql
+name: postgresql-snap
+description: Install postgresql (snap)
 config:
   cloud-init.vendor-data: |
     #cloud-config

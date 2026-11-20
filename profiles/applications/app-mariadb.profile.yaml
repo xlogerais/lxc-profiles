@@ -1,4 +1,4 @@
-name: mariadb
+name: app-mariadb
 description: Install mariadb
 config:
   cloud-init.vendor-data: |

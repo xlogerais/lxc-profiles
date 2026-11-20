@@ -5,28 +5,46 @@
 set -euo pipefail
 source "$MISE_PROJECT_ROOT/.mise/lib.sh"
 
-installed=$(lxc profile list --format csv --columns n,u 2>/dev/null) || die "Impossible d'interroger LXD (lxc profile list)"
+installed=$(lxc profile list --format yaml 2>/dev/null) || die "Impossible d'interroger LXD (lxc profile list)"
 
-declare -A used
-while IFS=, read -r n u; do used[$n]=$u; done <<<"$installed"
+declare -A used lxd_desc
+while IFS=$'\t' read -r n u d; do
+  used[$n]=$u
+  lxd_desc[$n]=$d
+done < <(yq -r '.[] | [.name, (.used_by | length), (.description // "")] | @tsv' <<<"$installed")
+
+# Description tronquée pour tenir dans sa colonne.
+DESC_WIDTH=50
+short() {
+  local d="${1//$'\n'/ }"
+  if [ "${#d}" -gt "$DESC_WIDTH" ]; then d="${d:0:$((DESC_WIDTH - 1))}…"; fi
+  printf '%s' "$d"
+}
+
+# Ligne : icône, couleur du nom, nom, description, utilisé, fichier, suffixe.
+row() {
+  printf "  %s %s%-24s${R} ${D}%s${R}%*s %-7s ${D}%s${R}%s\n" \
+    "$1" "$2" "$3" "$4" $((DESC_WIDTH - ${#4})) "" "$5" "$6" "${7:-}"
+}
 
 declare -A seen
 same=0; changed=0; absent=0
-printf "  ${B}%-2s %-26s %-8s %s${R}\n" "" "PROFIL" "UTILISÉ" "FICHIER"
+printf "  ${B}   %-24s %-${DESC_WIDTH}s %-7s %s${R}\n" "PROFIL" "DESCRIPTION" "UTILISÉ" "FICHIER"
 while IFS=$'\t' read -r name file; do
+  desc=$(short "$(yq -r '.description // ""' "$MISE_PROJECT_ROOT/$file")")
   extra=""
   if [ -n "${seen[$name]:-}" ]; then
     extra=" ${RED}(nom en double : ${seen[$name]})${R}"
   fi
   seen[$name]=$file
   if [ -z "${used[$name]+x}" ]; then
-    printf "  %-2s ${D}%-26s %-8s %s${R}%s\n" "⬜" "$name" "-" "$file" "$extra"
+    row "⬜" "$D" "$name" "$desc" "-" "$file" "$extra"
     absent=$((absent + 1))
   elif is_same "$file" "$name"; then
-    printf "  %-2s ${GREEN}%-26s${R} %-8s %s%s\n" "✅" "$name" "${used[$name]}" "$file" "$extra"
+    row "✅" "$GREEN" "$name" "$desc" "${used[$name]}" "$file" "$extra"
     same=$((same + 1))
   else
-    printf "  %-2s ${YELLOW}%-26s${R} %-8s %s%s\n" "⚠️" "$name" "${used[$name]}" "$file" "$extra"
+    row "⚠️" "$YELLOW" "$name" "$desc" "${used[$name]}" "$file" "$extra"
     changed=$((changed + 1))
   fi
 done < <(repo_index)
@@ -36,7 +54,7 @@ for n in "${!used[@]}"; do [ -n "${seen[$n]:-}" ] || others+=("$n"); done
 if [ "${usage_all:-false}" = "true" ] && [ "${#others[@]}" -gt 0 ]; then
   printf "\n  ${B}Hors dépôt${R} ${D}(mise run import <profil>)${R}\n"
   while IFS= read -r n; do
-    printf "  %-2s ${CYAN}%-26s${R} %-8s\n" "🔹" "$n" "${used[$n]}"
+    row "🔹" "$CYAN" "$n" "$(short "${lxd_desc[$n]}")" "${used[$n]}" ""
   done < <(printf '%s\n' "${others[@]}" | sort)
 fi
 

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#MISE description="Affiche le contenu d'un profil du dépôt (ou sa version installée dans LXD)"
+#MISE quiet=true
+#USAGE arg "[profile]" help="Nom de profil ou fichier du dépôt (défaut : sélection interactive)"
+#USAGE flag "-l --lxd" help="Affiche la version installée dans LXD plutôt que le fichier du dépôt"
+#USAGE complete "profile" run="mise run --quiet _names"
+set -euo pipefail
+source "$MISE_PROJECT_ROOT/.mise/lib.sh"
+
+arg="${usage_profile:-}"
+[ -n "$arg" ] || arg=$(repo_index | cut -f2 | pick "Profil à afficher")
+file=$(resolve_file "$arg")
+
+# Coloration YAML avec bat dans un terminal, sortie brute sinon.
+render() {
+  if [ -t 1 ] && command -v bat >/dev/null 2>&1; then
+    bat --language yaml --paging never --style header,grid,numbers --file-name "$1"
+  else
+    cat
+  fi
+}
+
+if [ "${usage_lxd:-false}" = "true" ]; then
+  name=$(profile_name "$file")
+  is_installed "$name" || die "Profil '$name' absent de LXD"
+  lxc profile show "$name" | render "lxd:$name"
+else
+  render "$file" <"$MISE_PROJECT_ROOT/$file"
+fi

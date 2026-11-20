@@ -1,4 +1,4 @@
-name: gitea
+name: app-gitea
 description: Install gitea
 config:
   cloud-init.vendor-data: |
@@ -23,4 +23,9 @@ config:
     runcmd:
       # Install gitea
       - [ snap, install, gitea ]
-
+devices:
+  data:
+    path: /var/snap/gitea/common
+    pool: zfs
+    source: gitea-data
+    type: disk

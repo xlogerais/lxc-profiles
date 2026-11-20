@@ -1,4 +1,4 @@
-name: streamrip
+name: app-streamrip
 description: Install streamrip (https://github.com/nathom/streamrip)
 config:
   cloud-init.vendor-data: |

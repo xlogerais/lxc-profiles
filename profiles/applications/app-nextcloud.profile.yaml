@@ -1,4 +1,4 @@
-name: nextcloud
+name: app-nextcloud
 description: Install Nextcloud
 config:
   cloud-init.vendor-data: |
@@ -24,10 +24,9 @@ config:
     runcmd:
       # Install Nextcloud
       - [ snap, install, nextcloud ]
-
 devices:
   nextcloud-data:
-    type: disk
+    path: /var/snap/nextcloud
     pool: zfs
     source: nextcloud-data
-    path: /var/snap/nextcloud
+    type: disk

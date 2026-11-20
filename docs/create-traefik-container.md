@@ -24,7 +24,7 @@ Create the container with required profiles:
 lxc init ubuntu:lts -p default -p traefik traefik-container
 
 # Or with additional profiles for production use:
-# lxc init ubuntu:lts -p default -p zfs -p net-front -p traefik -p traefik-volume-config traefik-container
+# lxc init ubuntu:lts -p default -p storage-zfs -p net-front -p traefik -p traefik-volume-config traefik-container
 ```
 
 ### Fix IP Address (Optional)

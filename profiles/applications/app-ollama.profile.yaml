@@ -1,5 +1,5 @@
 ---
-name: ollama
+name: app-ollama
 description: LXD Profile to launch a private ollama instance
 config:
   linux.kernel_modules: overlay

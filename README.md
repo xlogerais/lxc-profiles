@@ -12,7 +12,7 @@ This repository contains a collection of LXD profiles and network configurations
 ## Usage
 
 Prerequisites: [mise](https://mise.jdx.dev) and the `lxc` client. mise installs the
-other tools declared in `mise.toml` (`yq`, `gum`, `delta`) with `mise install`.
+other tools declared in `mise.toml` (`yq`, `gum`, `delta`, `bat`) with `mise install`.
 
 A short help message is displayed when entering the directory (mise `enter` hook),
 and `mise tasks` lists all available tasks.
@@ -23,6 +23,7 @@ A profile can be designated by its name (`docker`) or its file
 | Task | Description |
 |---|---|
 | `mise run list [--all]` | Repository profiles and their state in LXD: ✅ up to date, ⚠️ installed but different, ⬜ not installed. `--all` also shows 🔹 profiles installed in LXD but missing from the repository |
+| `mise run show [profile] [--lxd]` | Displays a repository profile (YAML highlighted with `bat`), or with `--lxd` the version installed in LXD |
 | `mise run diff [profile...]` | Diff between the installed profile (LXD) and the repository file. Without argument, every installed profile that differs. `--exit-code` returns 1 when there are differences |
 | `mise run install [profile...]` | Creates or updates profiles. An existing profile that differs shows its diff and asks for confirmation (`--yes` to skip). Without argument, interactive selection; `--all` for every profile |
 | `mise run import [profile] [file]` | Writes an installed LXD profile to the repository (without `used_by`, `project`, empty `config`/`devices`). Defaults to the repository file declaring that name, or `profiles/<profile>.profile.yaml`. Review with `git diff` before committing |

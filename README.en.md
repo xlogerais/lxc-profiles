@@ -9,7 +9,7 @@ This repository contains a collection of LXD profiles and network configurations
 - `profiles/`: Contains various LXD profile definitions categorized by their purpose (e.g., applications, networking, storage).
 - `network/`: Defines LXD network configurations.
 - `docs/`: Additional documentation and helper scripts.
-- `demo/`: Animated demos of the mise tasks ([how they are made](demo/README.md)).
+- `demo/`: Animated demos of the mise tasks ([how they are made](demo/README.en.md)).
 - `mise.toml`, `.mise/`: optional [mise](https://mise.jdx.dev) tasks to manage LXD profiles (`mise.demo.toml`: demo recording tools).
 
 ## Demo

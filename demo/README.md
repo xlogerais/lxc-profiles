@@ -1,38 +1,41 @@
-# Demos
+# Démos
 
-The animations of the [README](../README.md) are recorded with
-[autocast](https://github.com/k9withabone/autocast) from scenarios written in
-YAML (`<scenario>.yaml`): the commands really run in a bash shell and the
-session is written as an [asciinema](https://asciinema.org) recording
-(`<scenario>.cast`), then rendered as a GIF with
-[agg](https://github.com/asciinema/agg).
+🇬🇧 [Read in English](README.en.md)
 
-The `.cast` files can be played in Gitea's file view (asciinema player).
+Les animations du [README](../README.md) sont enregistrées avec
+[autocast](https://github.com/k9withabone/autocast) à partir de scénarios
+écrits en YAML (`<scénario>.yaml`) : les commandes sont réellement exécutées
+dans un shell bash et la session est enregistrée au format
+[asciinema](https://asciinema.org) (`<scénario>.cast`), puis convertie en GIF
+avec [agg](https://github.com/asciinema/agg).
 
-| Scenario | Demo | Prerequisites |
+Les fichiers `.cast` se lisent dans la vue fichier de Gitea (lecteur asciinema).
+
+| Scénario | Démo | Prérequis |
 |---|---|---|
-| `tour.yaml` | welcome message, `list`, `show`, `diff` (read only) | LXD |
-| `lxc.yaml` | plain `lxc`, without mise: create a profile from its YAML file | LXD, profile `unattended-upgrades` not installed |
-| `install.yaml` | `install`, diff and confirmation after a change in LXD, `import` | LXD, profile `unattended-upgrades` not installed |
+| `tour.yaml` | message d'accueil, `list`, `show`, `diff` (lecture seule) | LXD |
+| `lxc.yaml` | `lxc` seul, sans mise : création d'un profil à partir de son fichier YAML | LXD, profil `unattended-upgrades` non installé |
+| `install.yaml` | `install`, diff et confirmation après une modification dans LXD, `import` | LXD, profil `unattended-upgrades` non installé |
 
-## Recording a demo
+## Enregistrer une démo
 
-The recording tools live in a separate mise environment (`mise.demo.toml`), so
-they are only installed when making demos:
+Les outils d'enregistrement sont déclarés dans un environnement mise à part
+(`mise.demo.toml`) : ils ne sont installés que pour produire les démos.
 
 ```shell
-MISE_ENV=demo mise run demo <scenario>   # demo/<scenario>.cast and demo/<scenario>.gif
+MISE_ENV=demo mise run demo <scénario>   # demo/<scénario>.cast et demo/<scénario>.gif
 ```
 
-`setup.sh` is the hidden preamble of every scenario (mise activated, `delta` as
-git pager). `lxc.yaml` and `install.yaml` install the profile
-`unattended-upgrades` in LXD (`install.yaml` also modifies it and imports it
-into the repository); their hidden epilogue restores the repository file as it
-was and deletes the profile. These scenarios refuse to start if that profile is
-already installed.
+`setup.sh` est le préambule masqué de chaque scénario (mise activé, `delta`
+comme pager de git). `lxc.yaml` et `install.yaml` installent le profil
+`unattended-upgrades` dans LXD (`install.yaml` le modifie aussi et l'importe
+dans le dépôt) ; leur épilogue masqué remet le fichier du dépôt dans son état
+d'origine et supprime le profil. Ces scénarios refusent de démarrer si ce
+profil est déjà installé.
 
-agg draws the text itself, with fonts installed by mise in the demo environment
-(nothing is installed on the system, which can be headless):
-[Inconsolata Nerd Font](https://www.nerdfonts.com) and
-[Noto Color Emoji](https://github.com/googlefonts/noto-emoji), passed with
+agg dessine lui-même le texte, avec des polices installées par mise dans
+l'environnement de démo (rien n'est installé sur le système, qui peut être
+sans interface graphique) :
+[Inconsolata Nerd Font](https://www.nerdfonts.com) et
+[Noto Color Emoji](https://github.com/googlefonts/noto-emoji), passées avec
 `--font-dir`.

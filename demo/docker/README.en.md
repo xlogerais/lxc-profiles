@@ -12,7 +12,8 @@ This tutorial starts from scratch: get this repository, install the
 by itself at first boot, then use it.
 
 ![Clone the repository, install the profile, launch the instance and follow cloud-init](install.gif)
-<sub>▶ [asciinema recording](install.cast) (pause, fast forward)</sub>
+
+<sub>▶ [asciinema recording](install.cast)</sub>
 
 ## What you need
 
@@ -167,7 +168,8 @@ and the `docker0` bridge Docker just created inside.
 ## 4. Use Docker
 
 ![hello-world with lxc exec, then a shell in the instance: nginx, docker ps, top, stats](usage.gif)
-<sub>▶ [asciinema recording](usage.cast) (pause, fast forward)</sub>
+
+<sub>▶ [asciinema recording](usage.cast)</sub>
 
 ### From the host, with `lxc exec`
 

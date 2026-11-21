@@ -12,7 +12,8 @@ Ce tutoriel part de zéro : on récupère ce dépôt, on installe le profil
 seule au premier démarrage, puis on s'en sert.
 
 ![Clone du dépôt, installation du profil, lancement de l'instance et suivi de cloud-init](install.gif)
-<sub>▶ [Enregistrement asciinema](install.cast) (pause, avance rapide)</sub>
+
+<sub>▶ [Enregistrement asciinema](install.cast)</sub>
 
 ## Ce qu'il vous faut
 
@@ -167,7 +168,8 @@ LXD, et celle du bridge `docker0` que Docker vient de créer à l'intérieur.
 ## 4. Utiliser Docker
 
 ![hello-world avec lxc exec, puis un shell dans l'instance : nginx, docker ps, top, stats](usage.gif)
-<sub>▶ [Enregistrement asciinema](usage.cast) (pause, avance rapide)</sub>
+
+<sub>▶ [Enregistrement asciinema](usage.cast)</sub>
 
 ### Depuis l'hôte, avec `lxc exec`
 

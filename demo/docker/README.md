@@ -201,33 +201,139 @@ exit                                                            # retour sur l'h
 
 ## Pour aller plus loin
 
-- **Accéder au service depuis l'hôte.** Le port 8080 publié par Docker l'est
-  dans l'instance. Un device `proxy` LXD le rend joignable sur l'hôte (et donc
-  depuis votre réseau) :
+### Accéder au service depuis l'hôte
 
-  ```shell
-  lxc config device add docker web proxy listen=tcp:0.0.0.0:8080 connect=tcp:127.0.0.1:8080
-  curl --silent localhost:8080 | grep title
-  ```
+Le port 8080 publié par Docker l'est dans l'instance. Un device `proxy` LXD le
+rend joignable sur l'hôte (et donc depuis votre réseau) :
 
-  Si le port 8080 est déjà pris sur l'hôte, changez celui de `listen`. Le dépôt
-  propose aussi des profils prêts à l'emploi pour ça (`proxy-http`,
-  `proxy-https`).
-- **Combiner les profils.** Les profils s'empilent au lancement : taille de
-  l'instance (`size-small`, `size-medium`…), snapshots automatiques
-  (`snapshots-daily`), volume dédié aux données Docker (`docker-volume-data`)…
+```shell
+lxc config device add docker web proxy listen=tcp:0.0.0.0:8080 connect=tcp:127.0.0.1:8080
+curl --silent localhost:8080 | grep title
+```
 
-  ```shell
-  lxc launch ubuntu:lts docker --profile default --profile docker-unprivileged \
-    --profile size-medium --profile snapshots-daily
-  ```
-- **Faire le ménage.** L'instance se supprime d'une commande, Docker et ses
-  images avec ; le profil, s'il ne sert plus :
+Si le port 8080 est déjà pris sur l'hôte, changez celui de `listen`. Le dépôt
+propose aussi des profils prêts à l'emploi pour ça (`proxy-http`,
+`proxy-https`).
 
-  ```shell
-  lxc delete --force docker
-  lxc profile delete docker-unprivileged
-  ```
+### Garder les données Docker dans un volume, avec des snapshots automatiques
+
+Par défaut, images, conteneurs et volumes Docker vivent dans `/var/lib/docker`,
+sur le disque de l'instance : ils disparaissent avec elle. Le profil
+`docker-volume-data` y monte plutôt un volume LXD dédié, qui a sa propre vie :
+il survit à la suppression de l'instance, se rattache à une nouvelle, et se
+sauvegarde à part.
+
+Le volume doit exister **avant** l'installation du profil, LXD le vérifie. On
+le crée sur le pool `default`, celui qu'attend le profil, et on lui programme
+des snapshots : un par jour, gardé deux semaines.
+
+```shell
+lxc storage volume create default docker-data size=20GiB
+lxc storage volume set default docker-data snapshots.schedule=@daily snapshots.expiry=2w
+mise run install docker-volume-data
+```
+
+Le profil s'ajoute **à la création** de l'instance, pour que Docker s'installe
+directement sur le volume :
+
+```shell
+lxc launch ubuntu:lts docker --profile default --profile docker-unprivileged --profile docker-volume-data
+lxc exec docker -- findmnt --target /var/lib/docker   # le volume est bien monté
+```
+
+Les snapshots du volume se gèrent avec `lxc storage volume` :
+
+```shell
+lxc storage volume snapshot default docker-data avant-maj   # snapshot manuel
+lxc storage volume info default docker-data                 # liste des snapshots
+lxc stop docker                                             # instance arrêtée pour restaurer
+lxc storage volume restore default docker-data avant-maj
+lxc start docker
+```
+
+Le profil `snapshots-daily` ne suffit pas ici : il programme les snapshots de
+l'**instance**, qui n'incluent pas les volumes attachés. Ce sont deux réglages
+distincts, et on peut combiner les deux.
+
+### Adapter un profil installé à son besoin
+
+Les profils du dépôt sont un point de départ. Imaginons que vous vouliez les
+données Docker sur un autre pool, plus rapide, nommé `fast`. Le volume se copie
+(avec ses snapshots et leur programmation), puis on modifie directement le
+profil installé dans LXD :
+
+```shell
+lxc stop docker
+lxc storage volume copy default/docker-data fast/docker-data
+lxc profile device set docker-volume-data docker-data pool=fast
+lxc start docker
+lxc storage volume delete default docker-data   # une fois vérifié
+```
+
+Le volume se **copie** plutôt qu'il ne se déplace : LXD refuse de déplacer un
+volume auquel un profil fait référence. La modification s'applique à toutes les
+instances qui utilisent le profil.
+
+Le profil installé ne correspond plus au dépôt, et les tâches mise le
+signalent :
+
+```shell
+mise run list | grep docker-volume-data   # 📝 : installé mais différent
+mise run diff docker-volume-data
+```
+
+```diff
+--- lxd:docker-volume-data (installé)
++++ profiles/containerization/docker-volume-data.profile.yaml (dépôt)
+@@ -3,7 +3,7 @@
+ devices:
+   docker-data:
+     path: /var/lib/docker
+-    pool: fast
++    pool: default
+     source: docker-data
+     type: disk
+```
+
+Deux options s'offrent alors à vous :
+
+- **revenir à la version du dépôt** : `mise run install docker-volume-data`
+  affiche ce diff et demande confirmation avant d'écraser le profil ;
+- **garder votre version** : `mise run import docker-volume-data` réécrit le
+  fichier du dépôt à partir du profil installé. À relire avec `git diff`, puis
+  à commiter dans votre clone (ou votre fork).
+
+Un volume ne peut être attaché qu'à une seule instance à la fois. Pour une
+deuxième instance Docker, copiez le profil et donnez-lui son propre volume :
+
+```shell
+lxc storage volume create default docker2-data
+lxc profile copy docker-volume-data docker2-volume-data
+lxc profile device set docker2-volume-data docker-data source=docker2-data
+```
+
+### Combiner les profils
+
+Les profils s'empilent au lancement : taille de l'instance (`size-small`,
+`size-medium`…), snapshots automatiques de l'instance (`snapshots-daily`),
+volume de données (`docker-volume-data`)…
+
+```shell
+lxc launch ubuntu:lts docker --profile default --profile docker-unprivileged \
+  --profile docker-volume-data --profile size-medium --profile snapshots-daily
+```
+
+### Faire le ménage
+
+L'instance se supprime d'une commande, Docker avec. Le volume de données, lui,
+reste : à supprimer explicitement s'il ne sert plus, comme les profils.
+
+```shell
+lxc delete --force docker
+lxc storage volume delete default docker-data
+lxc profile delete docker-volume-data
+lxc profile delete docker-unprivileged
+```
 
 ## Sans mise
 

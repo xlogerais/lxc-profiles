@@ -201,33 +201,137 @@ exit                                                            # back to the ho
 
 ## Going further
 
-- **Reach the service from the host.** Port 8080 is published by Docker inside
-  the instance. An LXD `proxy` device makes it reachable on the host (and so
-  from your network):
+### Reach the service from the host
 
-  ```shell
-  lxc config device add docker web proxy listen=tcp:0.0.0.0:8080 connect=tcp:127.0.0.1:8080
-  curl --silent localhost:8080 | grep title
-  ```
+Port 8080 is published by Docker inside the instance. An LXD `proxy` device
+makes it reachable on the host (and so from your network):
 
-  If port 8080 is already taken on the host, change the `listen` one. The
-  repository also has ready-made profiles for that (`proxy-http`,
-  `proxy-https`).
-- **Combine profiles.** Profiles stack at launch: instance size
-  (`size-small`, `size-medium`…), automatic snapshots (`snapshots-daily`), a
-  dedicated volume for Docker data (`docker-volume-data`)…
+```shell
+lxc config device add docker web proxy listen=tcp:0.0.0.0:8080 connect=tcp:127.0.0.1:8080
+curl --silent localhost:8080 | grep title
+```
 
-  ```shell
-  lxc launch ubuntu:lts docker --profile default --profile docker-unprivileged \
-    --profile size-medium --profile snapshots-daily
-  ```
-- **Clean up.** The instance goes away with one command, Docker and its images
-  with it; the profile too, if no longer needed:
+If port 8080 is already taken on the host, change the `listen` one. The
+repository also has ready-made profiles for that (`proxy-http`,
+`proxy-https`).
 
-  ```shell
-  lxc delete --force docker
-  lxc profile delete docker-unprivileged
-  ```
+### Keep Docker data in a volume, with automatic snapshots
+
+By default, Docker images, containers and volumes live in `/var/lib/docker`,
+on the instance disk: they go away with it. The `docker-volume-data` profile
+mounts a dedicated LXD volume there instead, with a life of its own: it
+survives the instance deletion, attaches to a new one, and is backed up
+separately.
+
+The volume must exist **before** the profile is installed, LXD checks it.
+Create it on the `default` pool, the one the profile expects, and schedule
+snapshots for it: one a day, kept for two weeks.
+
+```shell
+lxc storage volume create default docker-data size=20GiB
+lxc storage volume set default docker-data snapshots.schedule=@daily snapshots.expiry=2w
+mise run install docker-volume-data
+```
+
+Add the profile **when the instance is created**, so that Docker installs
+directly on the volume:
+
+```shell
+lxc launch ubuntu:lts docker --profile default --profile docker-unprivileged --profile docker-volume-data
+lxc exec docker -- findmnt --target /var/lib/docker   # the volume is mounted
+```
+
+Volume snapshots are handled with `lxc storage volume`:
+
+```shell
+lxc storage volume snapshot default docker-data before-upgrade   # manual snapshot
+lxc storage volume info default docker-data                      # list of snapshots
+lxc stop docker                                                  # instance stopped to restore
+lxc storage volume restore default docker-data before-upgrade
+lxc start docker
+```
+
+The `snapshots-daily` profile is not enough here: it schedules snapshots of
+the **instance**, which do not include attached volumes. These are two
+separate settings, and both can be combined.
+
+### Adapt an installed profile to your needs
+
+The repository profiles are a starting point. Say you want Docker data on
+another, faster pool named `fast`. Copy the volume (with its snapshots and
+their schedule), then change the profile installed in LXD directly:
+
+```shell
+lxc stop docker
+lxc storage volume copy default/docker-data fast/docker-data
+lxc profile device set docker-volume-data docker-data pool=fast
+lxc start docker
+lxc storage volume delete default docker-data   # once checked
+```
+
+The volume is **copied** rather than moved: LXD refuses to move a volume a
+profile refers to. The change applies to every instance using the profile.
+
+The installed profile no longer matches the repository, and the mise tasks
+say so:
+
+```shell
+mise run list | grep docker-volume-data   # 📝: installed but different
+mise run diff docker-volume-data
+```
+
+```diff
+--- lxd:docker-volume-data (installé)
++++ profiles/containerization/docker-volume-data.profile.yaml (dépôt)
+@@ -3,7 +3,7 @@
+ devices:
+   docker-data:
+     path: /var/lib/docker
+-    pool: fast
++    pool: default
+     source: docker-data
+     type: disk
+```
+
+Two options then:
+
+- **back to the repository version**: `mise run install docker-volume-data`
+  shows this diff and asks for confirmation before overwriting the profile;
+- **keep your version**: `mise run import docker-volume-data` rewrites the
+  repository file from the installed profile. Review it with `git diff`, then
+  commit it in your clone (or your fork).
+
+A volume can only be attached to one instance at a time. For a second Docker
+instance, copy the profile and give it its own volume:
+
+```shell
+lxc storage volume create default docker2-data
+lxc profile copy docker-volume-data docker2-volume-data
+lxc profile device set docker2-volume-data docker-data source=docker2-data
+```
+
+### Combine profiles
+
+Profiles stack at launch: instance size (`size-small`, `size-medium`…),
+automatic instance snapshots (`snapshots-daily`), data volume
+(`docker-volume-data`)…
+
+```shell
+lxc launch ubuntu:lts docker --profile default --profile docker-unprivileged \
+  --profile docker-volume-data --profile size-medium --profile snapshots-daily
+```
+
+### Clean up
+
+The instance goes away with one command, Docker with it. The data volume
+stays: delete it explicitly if no longer needed, like the profiles.
+
+```shell
+lxc delete --force docker
+lxc storage volume delete default docker-data
+lxc profile delete docker-volume-data
+lxc profile delete docker-unprivileged
+```
 
 ## Without mise
 

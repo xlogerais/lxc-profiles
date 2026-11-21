@@ -1,0 +1,40 @@
+# Demo: welcome message, profile list, profile content and diff (read only)
+settings:
+  width: 156
+  height: 52
+  type_speed: 35ms
+  prompt: "\e[1;34mlxd\e[0m > "
+  timeout: 120s
+  # bash without rc files: the real prompt (PS1) is used to detect the end of commands
+  shell:
+    program: bash
+    args: [--norc, --noprofile]
+    prompt: AUTOCAST_PROMPT
+    line_split: " \\"
+    quit_command: exit
+  environment:
+    - {name: PS1, value: AUTOCAST_PROMPT}
+    - {name: PROMPT_COMMAND, value: "bind 'set enable-bracketed-paste off'"}
+
+instructions:
+  # From the parent directory, to trigger the mise enter hook
+  - !Command {command: "source demo/setup.sh && cd ..", hidden: true}
+  - !Marker Welcome
+  - !Command {command: "# Entering the repository displays a short help (mise enter hook)"}
+  - !Command {command: "cd lxd"}
+  - !Wait 5s
+  - !Clear
+  - !Marker List
+  - !Command {command: "# Repository profiles and their state in LXD"}
+  - !Command {command: "mise run list"}
+  - !Wait 6s
+  - !Clear
+  - !Marker Show
+  - !Command {command: "# Content of a repository profile"}
+  - !Command {command: "mise run show size-small"}
+  - !Wait 4s
+  - !Clear
+  - !Marker Diff
+  - !Command {command: "# What differs between LXD (installed) and the repository"}
+  - !Command {command: "mise run diff proxy-http"}
+  - !Wait 6s

@@ -1,0 +1,27 @@
+# Environnement de production des démos (MISE_ENV=demo), en plus de mise.toml :
+# ces outils ne sont installés que pour lui.
+#   MISE_ENV=demo mise run demo <scénario>
+
+[tools]
+"github:k9withabone/autocast" = "latest"
+"github:asciinema/agg" = "latest"
+# Polices pour agg (--font-dir) : rien n'est installé sur le système
+"github:ryanoasis/nerd-fonts" = { version = "latest", asset_pattern = "Inconsolata.tar.xz", no_app = true }
+"http:noto-color-emoji" = { version = "2026-09-24", url = "https://github.com/googlefonts/noto-emoji/raw/v2026-09-24-unicode18_0/2D/fonts/NotoColorEmoji.ttf" }
+
+[tasks.demo]
+description = "Enregistre une démo (demo/<nom>.cast avec autocast, puis demo/<nom>.gif avec agg)"
+usage = '''
+arg "<name>" help="Scénario (demo/<name>.yaml)" {
+  choices "tour" "install"
+}
+'''
+run = '''
+autocast --overwrite "demo/${usage_name}.yaml" "demo/${usage_name}.cast"
+agg --quiet --theme monokai \
+  --font-dir "$(mise where github:ryanoasis/nerd-fonts)" \
+  --font-dir "$(mise where http:noto-color-emoji)" \
+  --text-font-family "Inconsolata Nerd Font Mono" \
+  --emoji-font-family "Noto Color Emoji" \
+  "demo/${usage_name}.cast" "demo/${usage_name}.gif"
+'''

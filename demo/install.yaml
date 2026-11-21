@@ -1,0 +1,45 @@
+# Demo: install a profile, update it after a change in LXD, import it back
+# (prerequisites: LXD, profile unattended-upgrades not installed; removed at the end)
+settings:
+  width: 156
+  height: 52
+  type_speed: 35ms
+  prompt: "\e[1;34mlxd\e[0m > "
+  timeout: 120s
+  # bash without rc files: the real prompt (PS1) is used to detect the end of commands
+  shell:
+    program: bash
+    args: [--norc, --noprofile]
+    prompt: AUTOCAST_PROMPT
+    line_split: " \\"
+    quit_command: exit
+  environment:
+    - {name: PS1, value: AUTOCAST_PROMPT}
+    - {name: PROMPT_COMMAND, value: "bind 'set enable-bracketed-paste off'"}
+
+instructions:
+  - !Command {command: "source demo/setup.sh", hidden: true}
+  - !Marker Install
+  - !Command {command: "# Install a profile from the repository"}
+  - !Command {command: "mise run install unattended-upgrades"}
+  - !Wait 3s
+  - !Clear
+  - !Marker Update
+  - !Command {command: "# Someone changes the profile directly in LXD..."}
+  - !Command {command: "lxc profile set unattended-upgrades snapshots.schedule @daily"}
+  - !Command {command: "mise run list | grep unattended"}
+  - !Wait 3s
+  - !Command {command: "# Installing again shows the diff and asks for confirmation"}
+  - !Interactive
+    command: "mise run install unattended-upgrades"
+    keys: [4s, y]
+  - !Wait 3s
+  - !Clear
+  - !Marker Import
+  - !Command {command: "# Or keep the LXD change: import the profile into the repository"}
+  - !Command {command: "lxc profile set unattended-upgrades snapshots.schedule @daily"}
+  - !Command {command: "mise run import unattended-upgrades"}
+  - !Wait 2s
+  - !Command {command: "git diff profiles/"}
+  - !Wait 6s
+  - !Command {command: "demo_cleanup", hidden: true}

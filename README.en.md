@@ -45,6 +45,9 @@ Step-by-step use cases, from the clone of the repository to a ready instance:
 
 - [Docker in an LXD container](demo/docker/README.en.md): install the
   `docker-unprivileged` profile, launch an instance and use Docker.
+- [Back up your LXD instances with Backrest](demo/backrest/README.en.md): a
+  backup instance reading the volumes of the others read-only, configured from
+  the web UI, then restic on the command line.
 
 ## Usage
 

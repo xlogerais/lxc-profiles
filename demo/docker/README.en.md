@@ -301,8 +301,9 @@ Two options then:
   repository file from the installed profile. Review it with `git diff`, then
   commit it in your clone (or your fork).
 
-A volume can only be attached to one instance at a time. For a second Docker
-instance, copy the profile and give it its own volume:
+LXD lets several instances attach the same volume, but two Docker daemons must
+never share the same `/var/lib/docker`. For a second Docker instance, copy the
+profile and give it its own volume:
 
 ```shell
 lxc storage volume create default docker2-data

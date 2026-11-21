@@ -4,19 +4,11 @@
 #   source demo/docker/setup.sh usage    # instance "docker" ready (created if missing)
 # demo_cleanup (epilogue) removes what the demo created.
 eval "$(mise activate bash)"
+source demo/lib.sh
 DEMO_INSTANCE=docker
 DEMO_PROFILE=docker-unprivileged
 DEMO_REPO=$PWD
 DEMO_CREATED=
-
-# Root shell of the instance, made recordable: its prompt ends with the marker
-# autocast waits for, and its input is not echoed twice (no readline, no tty echo)
-demo_instance_shell() {
-  lxc exec "$DEMO_INSTANCE" -- sh -c "cat >> /root/.bashrc" <<'RC'
-PS1='\[\e[1;32m\]root@docker\[\e[0m\]:\w# AUTOCAST_PROMPT'
-set +o emacs; stty -echo
-RC
-}
 
 case "$1" in
   install)
@@ -33,9 +25,9 @@ case "$1" in
       DEMO_CREATED=yes
       mise run install --yes "$DEMO_PROFILE" >/dev/null
       lxc launch ubuntu:lts "$DEMO_INSTANCE" --profile default --profile "$DEMO_PROFILE" >/dev/null
-      lxc exec "$DEMO_INSTANCE" -- cloud-init status --wait >/dev/null
+      demo_wait_cloud_init "$DEMO_INSTANCE"
     fi
-    demo_instance_shell
+    demo_instance_shell "$DEMO_INSTANCE"
     ;;
 esac
 

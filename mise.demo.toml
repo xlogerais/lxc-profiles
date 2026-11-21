@@ -13,7 +13,7 @@
 description = "Enregistre une démo (demo/<nom>.cast avec autocast, retouché par demo/castfix.py, puis demo/<nom>.gif avec agg)"
 usage = '''
 arg "<name>" help="Scénario (demo/<name>.yaml)" {
-  choices "tour" "install" "lxc" "docker/install" "docker/usage"
+  choices "tour" "install" "lxc" "docker/install" "docker/usage" "backrest/install" "backrest/restore"
 }
 '''
 run = '''

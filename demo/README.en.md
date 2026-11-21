@@ -18,6 +18,8 @@ The `.cast` files can be played in Gitea's file view (asciinema player).
 | `install.yaml` | `install`, diff and confirmation after a change in LXD, `import` | LXD, profile `unattended-upgrades` not installed |
 | `docker/install.yaml` | [Docker tutorial](docker/README.en.md): clone the repository, install the `docker-unprivileged` profile, launch an instance and follow cloud-init | LXD, mise, no instance `docker` nor profile `docker-unprivileged` |
 | `docker/usage.yaml` | [Docker tutorial](docker/README.en.md): `lxc exec`, then `lxc shell` and Docker commands in the instance | LXD, mise |
+| `backrest/install.yaml` | [Backrest tutorial](backrest/README.en.md): `app-backrest` profile, volumes, backup instance | LXD, mise, no `backrest` nor `app` instance, no `backups` nor `app-data` volume, no `app-backrest` profile |
+| `backrest/restore.yaml` | [Backrest tutorial](backrest/README.en.md): restic on the command line, restoring a file | LXD, mise |
 
 ## Recording a demo
 
@@ -35,12 +37,16 @@ into the repository); their hidden epilogue restores the repository file as it
 was and deletes the profile. These scenarios refuse to start if that profile is
 already installed.
 
-The scenarios of a tutorial live in a subdirectory (`docker/`), with their own
-`setup.sh` preamble: it creates or checks what the scenario needs (instance,
+The scenarios of a tutorial live in a subdirectory (`docker/`, `backrest/`),
+with their own `setup.sh` preamble (shared functions in `lib.sh`): it creates or checks what the scenario needs (instance,
 profile, clone of the repository in a temporary directory), and its epilogue
 removes what the demo created. These scenarios let the shell display its own
 prompt (`prompt: ""` for autocast), so that the instance root shell opened by
 `lxc shell` keeps its own.
+
+Web UI screenshots (`backrest/*.png`) are made by `backrest/screenshots.sh`: a
+Debian instance with Chromium, driven by Playwright (`screenshots.mjs`), fills
+in the UI forms; everything is removed at the end.
 
 `castfix.py` touches up each recording: it puts back the shell prompt that
 autocast drops (at the start and after a `!Clear`) and speeds up the progress

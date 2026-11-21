@@ -18,7 +18,7 @@ cat <<MSG
   ${c}╰────────────────────────────────────────────────────────╯${r}
 
   🗂️  ${b}Profils${r}
-     ▸ mise run list [--all]          ${d}profils du dépôt et état dans LXD (✅ 📝 ⬜ 🔹)${r}
+     ▸ mise run list [--all]          ${d}profils du dépôt et état dans LXD${r}
      ▸ mise run show [profil] [--lxd] ${d}contenu d'un profil (dépôt ou LXD)${r}
      ▸ mise run diff [profil...]      ${d}diff installé (LXD) → dépôt${r}
      ▸ mise run install [profil...]   ${d}crée / met à jour (diff + confirmation, --all, --yes)${r}

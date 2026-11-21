@@ -1,7 +1,7 @@
 # Demo: welcome message, profile list, profile content and diff (read only)
 settings:
   width: 156
-  height: 52
+  height: 56
   type_speed: 35ms
   prompt: "\e[1;34mlxd\e[0m > "
   timeout: 120s

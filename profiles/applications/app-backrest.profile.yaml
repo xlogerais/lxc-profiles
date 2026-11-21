@@ -1,0 +1,40 @@
+name: app-backrest
+description: Install backrest and its restic (web UI on port 9898)
+config:
+  cloud-init.vendor-data: |
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+    timezone: Europe/Paris
+    locale: fr_FR.UTF-8
+    packages:
+      - curl
+    write_files:
+      - path: /etc/systemd/system/backrest.service
+        permissions: "0644"
+        content: |
+          [Unit]
+          Description=Backrest (restic web UI)
+          After=network-online.target
+          Wants=network-online.target
+
+          [Service]
+          Type=simple
+          # root : lecture de tous les fichiers des volumes montés en lecture seule
+          User=root
+          ExecStart=/usr/local/bin/backrest
+          Environment="BACKREST_PORT=0.0.0.0:9898"
+          Environment="BACKREST_CONFIG=/etc/backrest/config.json"
+          Environment="BACKREST_DATA=/var/lib/backrest"
+          Restart=on-failure
+
+          [Install]
+          WantedBy=multi-user.target
+    runcmd:
+      - mkdir -p /etc/backrest /var/lib/backrest
+      - curl -fsSL https://github.com/garethgeorge/backrest/releases/latest/download/backrest_Linux_x86_64.tar.gz | tar xz -C /usr/local/bin backrest
+      - systemctl daemon-reload
+      - systemctl enable --now backrest
+      # restic en CLI (restauration, tests) : celui que backrest télécharge et
+      # maintient à la version requise (celui d'Ubuntu est trop ancien pour backrest)
+      - ln -sf /var/lib/backrest/restic /usr/local/bin/restic

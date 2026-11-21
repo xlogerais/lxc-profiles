@@ -6,7 +6,7 @@ Install the docker profile :
 
 ```bash
 lxc profile create docker
-curl https://gitea.cloud.logerais.com/cloud.logerais.com/lxd-profiles/raw/branch/main/profiles/containerization/docker.profile.yaml | lxc profile edit docker
+curl https://gitea.cloud.logerais.com/xavier/lxd-profiles/raw/branch/main/profiles/containerization/docker.profile.yaml | lxc profile edit docker
 ```
 
 Or use the local profile:

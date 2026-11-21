@@ -6,7 +6,7 @@ Install the traefik profile :
 
 ```bash
 lxc profile create traefik
-curl https://gitea.cloud.logerais.com/cloud.logerais.com/lxd-profiles/raw/branch/main/profiles/applications/traefik.profile.yaml | lxc profile edit traefik
+curl https://gitea.cloud.logerais.com/xavier/lxd-profiles/raw/branch/main/profiles/applications/traefik.profile.yaml | lxc profile edit traefik
 ```
 
 Or use the local profile:

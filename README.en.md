@@ -17,6 +17,7 @@ This repository contains a collection of LXD profiles and network configurations
 ### Plain `lxc`, without mise
 
 ![Create a profile from its YAML file with lxc](demo/lxc.gif)
+<sub>▶ [asciinema recording](demo/lxc.cast) (pause, fast forward)</sub>
 
 ### Tour of the mise tasks
 
@@ -24,6 +25,7 @@ Welcome message when entering the directory, profile list with their state in
 LXD, profile content and diff between LXD and the repository.
 
 ![Welcome message, profile list, profile content and diff](demo/tour.gif)
+<sub>▶ [asciinema recording](demo/tour.cast) (pause, fast forward)</sub>
 
 ### Install, update and import a profile
 
@@ -32,6 +34,7 @@ the diff and asks for confirmation; `import` brings the change back into the
 repository instead.
 
 ![Install a profile, update it after a change in LXD, import it back](demo/install.gif)
+<sub>▶ [asciinema recording](demo/install.cast) (pause, fast forward)</sub>
 
 ## Tutorials
 

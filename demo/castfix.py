@@ -24,7 +24,8 @@ if prompt and first and not first[2].startswith(prompt):
     events.insert(0, [0.0, "o", prompt])
 if prompt:
     for event in events:
-        if event[1] == "o" and event[2].endswith("\x1b[2J\x1b[3J"):
+        # Only autocast's own !Clear (a clear run in the shell redraws its prompt)
+        if event[1] == "o" and event[2] == "\r\x1b[H\x1b[2J\x1b[3J":
             event[2] += prompt
 
 shift, previous = 0.0, 0.0

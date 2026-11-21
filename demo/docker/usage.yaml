@@ -29,16 +29,16 @@ instructions:
   - !Marker Shell
   - !Command {command: "# Or open a shell in the instance and use Docker as on any machine"}
   - !Command {command: "lxc shell docker"}
-  - !Command {command: "docker run -d --name web -p 8080:80 nginx:alpine"}
+  - !Command {command: "docker run --detach --name web --publish 8080:80 nginx:alpine"}
   - !Wait 2s
   - !Command {command: "clear"}
   - !Command {command: "docker image ls"}
   - !Command {command: "docker ps"}
   - !Wait 3s
-  - !Command {command: "docker top web -o pid,user,args"}
+  - !Command {command: "docker top web --format pid,user,args"}
   - !Command {command: "docker stats --no-stream"}
   - !Wait 3s
-  - !Command {command: "curl -s localhost:8080 | grep title"}
+  - !Command {command: "curl --silent localhost:8080 | grep title"}
   - !Command {command: "exit"}
   - !Wait 5s
   - !Command {command: "demo_cleanup", hidden: true}

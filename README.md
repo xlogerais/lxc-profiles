@@ -18,6 +18,7 @@ le déploiement et la gestion de conteneurs LXD.
 ### Avec `lxc` seul, sans mise
 
 ![Création d'un profil à partir de son fichier YAML avec lxc](demo/lxc.gif)
+<sub>▶ [Enregistrement asciinema](demo/lxc.cast) (pause, avance rapide)</sub>
 
 ### Tour des tâches mise
 
@@ -25,6 +26,7 @@ Message d'accueil à l'entrée dans le dossier, liste des profils avec leur éta
 dans LXD, contenu d'un profil et différences entre LXD et le dépôt.
 
 ![Message d'accueil, liste des profils, contenu d'un profil et diff](demo/tour.gif)
+<sub>▶ [Enregistrement asciinema](demo/tour.cast) (pause, avance rapide)</sub>
 
 ### Installer, mettre à jour et importer un profil
 
@@ -33,6 +35,7 @@ affiche le diff et demande une confirmation ; `import` rapatrie au contraire
 la modification dans le dépôt.
 
 ![Installation d'un profil, mise à jour après une modification dans LXD, puis import](demo/install.gif)
+<sub>▶ [Enregistrement asciinema](demo/install.cast) (pause, avance rapide)</sub>
 
 ## Tutoriels
 

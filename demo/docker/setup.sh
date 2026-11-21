@@ -32,7 +32,7 @@ case "$1" in
     if ! lxc info "$DEMO_INSTANCE" >/dev/null 2>&1; then
       DEMO_CREATED=yes
       mise run install --yes "$DEMO_PROFILE" >/dev/null
-      lxc launch ubuntu:24.04 "$DEMO_INSTANCE" -p default -p "$DEMO_PROFILE" >/dev/null
+      lxc launch ubuntu:lts "$DEMO_INSTANCE" --profile default --profile "$DEMO_PROFILE" >/dev/null
       lxc exec "$DEMO_INSTANCE" -- cloud-init status --wait >/dev/null
     fi
     demo_instance_shell

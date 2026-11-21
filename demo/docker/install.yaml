@@ -30,19 +30,18 @@ instructions:
   - !Clear
   - !Marker Profile
   - !Command {command: "# Docker profiles available in the repository, not installed in LXD yet"}
-  - !Command {command: "mise run list | grep -E 'PROFIL|docker'"}
+  - !Command {command: "mise run list | grep --extended-regexp 'PROFIL|docker'"}
   - !Wait 3s
   - !Command {command: "mise run show docker-unprivileged"}
   - !Wait 4s
   - !Command {command: "mise run install docker-unprivileged"}
-  - !Command {command: "mise run list | grep -E 'PROFIL|docker-unprivileged'"}
+  - !Command {command: "mise run list | grep --extended-regexp 'PROFIL|docker-unprivileged'"}
   - !Wait 3s
   - !Clear
   - !Marker Launch
   - !Command {command: "# Launch an instance with the profile: cloud-init installs Docker at first boot"}
-  - !Command {command: "lxc launch ubuntu:24.04 docker -p default -p docker-unprivileged"}
-  - !Command {command: "lxc exec docker -- cloud-init status --wait"}
-  - !Command {command: "lxc exec docker -- tail -n 1 /var/log/cloud-init-output.log"}
+  - !Command {command: "lxc launch ubuntu:lts docker --profile default --profile docker-unprivileged"}
+  - !Command {command: "lxc exec docker -- cloud-init status --wait --long"}
   - !Wait 2s
   - !Command {command: "lxc exec docker -- docker version --format 'Docker {{.Server.Version}}'"}
   - !Command {command: "lxc list docker"}

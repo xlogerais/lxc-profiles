@@ -12,6 +12,7 @@ Ce tutoriel part de zéro : on récupère ce dépôt, on installe le profil
 seule au premier démarrage, puis on s'en sert.
 
 ![Clone du dépôt, installation du profil, lancement de l'instance et suivi de cloud-init](install.gif)
+<sub>▶ [Enregistrement asciinema](install.cast) (pause, avance rapide)</sub>
 
 ## Ce qu'il vous faut
 
@@ -20,8 +21,8 @@ seule au premier démarrage, puis on s'en sert.
 
   ```shell
   sudo snap install lxd
-  sudo usermod -aG lxd "$USER"   # puis se reconnecter
-  sudo lxd init --auto           # pool de stockage et bridge lxdbr0 par défaut
+  sudo usermod --append --groups lxd "$USER"   # puis se reconnecter
+  sudo lxd init --auto                         # pool de stockage et bridge lxdbr0 par défaut
   ```
 
   `lxc list` doit répondre sans erreur. Le tutoriel fonctionne aussi dans un
@@ -62,7 +63,7 @@ Commençons par voir ce que le dépôt propose autour de Docker, et ce qui est d
 installé dans LXD :
 
 ```shell
-mise run list | grep -E 'PROFIL|docker'
+mise run list | grep --extended-regexp 'PROFIL|docker'
 ```
 
 ```
@@ -124,38 +125,38 @@ On l'installe dans LXD :
 
 ```shell
 mise run install docker-unprivileged
-mise run list | grep -E 'PROFIL|docker-unprivileged'   # ✅ : à jour dans LXD
+mise run list | grep --extended-regexp 'PROFIL|docker-unprivileged'   # ✅ : à jour dans LXD
 ```
 
 ## 3. Lancer l'instance et suivre son installation
 
-Un profil s'ajoute au lancement, après le profil `default` (qui apporte le disque
-et le réseau) :
+`ubuntu:lts` désigne la dernière version LTS d'Ubuntu (26.04 à l'écriture de ces
+lignes). Un profil s'ajoute au lancement, après le profil `default` (qui
+apporte le disque et le réseau) :
 
 ```shell
-lxc launch ubuntu:24.04 docker -p default -p docker-unprivileged
+lxc launch ubuntu:lts docker --profile default --profile docker-unprivileged
 ```
 
 L'instance démarre en quelques secondes, mais cloud-init travaille encore en
 arrière-plan : mise à jour des paquets puis installation de Docker, environ une
-minute et demie. Pour attendre la fin :
+minute. Pour attendre la fin et obtenir le bilan, erreurs éventuelles comprises
+(`errors: []` quand tout s'est bien passé) :
 
 ```shell
-lxc exec docker -- cloud-init status --wait     # un point par seconde, puis « status: done »
+lxc exec docker -- cloud-init status --wait --long
 ```
 
-Pour suivre l'installation en direct, le journal de cloud-init se lit comme
-n'importe quel fichier (Ctrl+C pour arrêter) :
+Pour suivre plutôt l'installation en direct, le journal de cloud-init se lit
+comme n'importe quel fichier (Ctrl+C pour arrêter) :
 
 ```shell
-lxc exec docker -- tail -f /var/log/cloud-init-output.log
+lxc exec docker -- tail --follow /var/log/cloud-init-output.log
 ```
 
-Et si quelque chose se passe mal, `cloud-init status --long` résume les erreurs.
-Une fois terminé :
+Une fois terminé, Docker est là :
 
 ```shell
-lxc exec docker -- tail -n 1 /var/log/cloud-init-output.log
 lxc exec docker -- docker version --format 'Docker {{.Server.Version}}'
 lxc list docker
 ```
@@ -166,6 +167,7 @@ LXD, et celle du bridge `docker0` que Docker vient de créer à l'intérieur.
 ## 4. Utiliser Docker
 
 ![hello-world avec lxc exec, puis un shell dans l'instance : nginx, docker ps, top, stats](usage.gif)
+<sub>▶ [Enregistrement asciinema](usage.cast) (pause, avance rapide)</sub>
 
 ### Depuis l'hôte, avec `lxc exec`
 
@@ -186,13 +188,13 @@ lxc shell docker
 ```
 
 ```shell
-docker run -d --name web -p 8080:80 nginx:alpine   # un serveur web en arrière-plan
-docker image ls                                     # images téléchargées
-docker ps                                           # conteneurs en cours
-docker top web -o pid,user,args                     # processus du conteneur web
-docker stats --no-stream                            # CPU, mémoire, réseau
-curl -s localhost:8080 | grep title                 # nginx répond
-exit                                                # retour sur l'hôte
+docker run --detach --name web --publish 8080:80 nginx:alpine   # un serveur web en arrière-plan
+docker image ls                                                 # images téléchargées
+docker ps                                                       # conteneurs en cours
+docker top web --format pid,user,args                           # processus du conteneur web
+docker stats --no-stream                                        # CPU, mémoire, réseau
+curl --silent localhost:8080 | grep title                       # nginx répond
+exit                                                            # retour sur l'hôte
 ```
 
 ## Pour aller plus loin
@@ -203,7 +205,7 @@ exit                                                # retour sur l'hôte
 
   ```shell
   lxc config device add docker web proxy listen=tcp:0.0.0.0:8080 connect=tcp:127.0.0.1:8080
-  curl -s localhost:8080 | grep title
+  curl --silent localhost:8080 | grep title
   ```
 
   Si le port 8080 est déjà pris sur l'hôte, changez celui de `listen`. Le dépôt
@@ -214,7 +216,8 @@ exit                                                # retour sur l'hôte
   (`snapshots-daily`), volume dédié aux données Docker (`docker-volume-data`)…
 
   ```shell
-  lxc launch ubuntu:24.04 docker -p default -p docker-unprivileged -p size-medium -p snapshots-daily
+  lxc launch ubuntu:lts docker --profile default --profile docker-unprivileged \
+    --profile size-medium --profile snapshots-daily
   ```
 - **Faire le ménage.** L'instance se supprime d'une commande, Docker et ses
   images avec ; le profil, s'il ne sert plus :
@@ -231,7 +234,7 @@ Les fichiers du dépôt sont des profils LXD ordinaires : `lxc` suffit.
 ```shell
 lxc profile create docker-unprivileged
 lxc profile edit docker-unprivileged < profiles/containerization/docker-unprivileged.profile.yaml
-lxc launch ubuntu:24.04 docker -p default -p docker-unprivileged
+lxc launch ubuntu:lts docker --profile default --profile docker-unprivileged
 ```
 
 ## Rejouer les démos

@@ -1,0 +1,49 @@
+# Demo: Docker in an LXD container, from the clone of the repository to a ready instance
+# (prerequisites: LXD, mise, no instance "docker" nor profile docker-unprivileged; removed at the end)
+settings:
+  width: 156
+  height: 36
+  type_speed: 35ms
+  # Empty: the prompts are the shell's own (PS1), so that the instance's root shell keeps its own prompt
+  prompt: ""
+  timeout: 300s
+  # bash without rc files: the real prompt (PS1) is used to detect the end of commands
+  shell:
+    program: bash
+    args: [--norc, --noprofile]
+    prompt: AUTOCAST_PROMPT
+    line_split: " \\"
+    quit_command: exit
+  environment:
+    - {name: PS1, value: "\\[\\e[1;34m\\]lxd\\[\\e[0m\\] > AUTOCAST_PROMPT"}
+    - {name: PROMPT_COMMAND, value: "bind 'set enable-bracketed-paste off'"}
+    - {name: TERM, value: xterm-256color}
+
+instructions:
+  - !Command {command: "source demo/docker/setup.sh install", hidden: true}
+  - !Marker Clone
+  - !Command {command: "# Get the repository and trust its mise configuration"}
+  - !Command {command: "git clone https://gitea.cloud.logerais.com/xavier/lxd-profiles.git"}
+  - !Command {command: "mise trust lxd-profiles"}
+  - !Command {command: "cd lxd-profiles"}
+  - !Wait 4s
+  - !Clear
+  - !Marker Profile
+  - !Command {command: "# Docker profiles available in the repository, not installed in LXD yet"}
+  - !Command {command: "mise run list | grep --extended-regexp 'PROFIL|docker'"}
+  - !Wait 3s
+  - !Command {command: "mise run show docker-unprivileged"}
+  - !Wait 4s
+  - !Command {command: "mise run install docker-unprivileged"}
+  - !Command {command: "mise run list | grep --extended-regexp 'PROFIL|docker-unprivileged'"}
+  - !Wait 3s
+  - !Clear
+  - !Marker Launch
+  - !Command {command: "# Launch an instance with the profile: cloud-init installs Docker at first boot"}
+  - !Command {command: "lxc launch ubuntu:lts docker --profile default --profile docker-unprivileged"}
+  - !Command {command: "lxc exec docker -- cloud-init status --wait --long"}
+  - !Wait 2s
+  - !Command {command: "lxc exec docker -- docker version --format 'Docker {{.Server.Version}}'"}
+  - !Command {command: "lxc list docker"}
+  - !Wait 6s
+  - !Command {command: "demo_cleanup", hidden: true}

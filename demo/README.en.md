@@ -16,6 +16,8 @@ The `.cast` files can be played in Gitea's file view (asciinema player).
 | `tour.yaml` | welcome message, `list`, `show`, `diff` (read only) | LXD |
 | `lxc.yaml` | plain `lxc`, without mise: create a profile from its YAML file | LXD, profile `unattended-upgrades` not installed |
 | `install.yaml` | `install`, diff and confirmation after a change in LXD, `import` | LXD, profile `unattended-upgrades` not installed |
+| `docker/install.yaml` | [Docker tutorial](docker/README.en.md): clone the repository, install the `docker-unprivileged` profile, launch an instance and follow cloud-init | LXD, mise, no instance `docker` nor profile `docker-unprivileged` |
+| `docker/usage.yaml` | [Docker tutorial](docker/README.en.md): `lxc exec`, then `lxc shell` and Docker commands in the instance | LXD, mise |
 
 ## Recording a demo
 
@@ -32,6 +34,17 @@ git pager). `lxc.yaml` and `install.yaml` install the profile
 into the repository); their hidden epilogue restores the repository file as it
 was and deletes the profile. These scenarios refuse to start if that profile is
 already installed.
+
+The scenarios of a tutorial live in a subdirectory (`docker/`), with their own
+`setup.sh` preamble: it creates or checks what the scenario needs (instance,
+profile, clone of the repository in a temporary directory), and its epilogue
+removes what the demo created. These scenarios let the shell display its own
+prompt (`prompt: ""` for autocast), so that the instance root shell opened by
+`lxc shell` keeps its own.
+
+`castfix.py` touches up each recording: it puts back the shell prompt that
+autocast drops (at the start and after a `!Clear`) and speeds up the progress
+dots of `cloud-init status --wait`.
 
 agg draws the text itself, with fonts installed by mise in the demo environment
 (nothing is installed on the system, which can be headless):

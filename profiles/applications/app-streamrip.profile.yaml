@@ -16,6 +16,8 @@ config:
 
     users:
       - name: rip
+        # uid 1000 : correspond au raw.idmap de volume-homedir-Musique
+        uid: 1000
         groups: sudo
         shell: /bin/bash
         sudo: ['ALL=(ALL) NOPASSWD:ALL']
@@ -46,4 +48,8 @@ config:
           mise use -g pipx:streamrip
 
     runcmd:
+      # Si un volume est monté sous /home/rip (volume-homedir-Musique), LXD crée
+      # /home/rip en root avant cloud-init : on le rend à rip et on copie le skel
+      - chown rip:rip /home/rip
+      - sudo -u rip cp -rn /etc/skel/. /home/rip/
       - sudo -u rip /tmp/setup-mise.bash

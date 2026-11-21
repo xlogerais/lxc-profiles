@@ -10,14 +10,15 @@
 "http:noto-color-emoji" = { version = "2026-09-24", url = "https://github.com/googlefonts/noto-emoji/raw/v2026-09-24-unicode18_0/2D/fonts/NotoColorEmoji.ttf" }
 
 [tasks.demo]
-description = "Enregistre une démo (demo/<nom>.cast avec autocast, puis demo/<nom>.gif avec agg)"
+description = "Enregistre une démo (demo/<nom>.cast avec autocast, retouché par demo/castfix.py, puis demo/<nom>.gif avec agg)"
 usage = '''
 arg "<name>" help="Scénario (demo/<name>.yaml)" {
-  choices "tour" "install" "lxc"
+  choices "tour" "install" "lxc" "docker/install" "docker/usage"
 }
 '''
 run = '''
 autocast --overwrite "demo/${usage_name}.yaml" "demo/${usage_name}.cast"
+python3 -I demo/castfix.py "demo/${usage_name}.cast"
 agg --quiet --theme monokai \
   --font-dir "$(mise where github:ryanoasis/nerd-fonts)" \
   --font-dir "$(mise where http:noto-color-emoji)" \

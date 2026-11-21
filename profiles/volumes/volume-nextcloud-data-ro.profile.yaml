@@ -1,0 +1,9 @@
+name: volume-nextcloud-data-ro
+description: Volume des données Nextcloud en lecture seule (instance de backup)
+devices:
+  nextcloud-data:
+    path: /backup/nextcloud-data
+    pool: zfs
+    source: nextcloud-data
+    readonly: "true"
+    type: disk

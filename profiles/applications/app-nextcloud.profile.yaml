@@ -24,9 +24,3 @@ config:
     runcmd:
       # Install Nextcloud
       - [ snap, install, nextcloud ]
-devices:
-  nextcloud-data:
-    path: /var/snap/nextcloud
-    pool: zfs
-    source: nextcloud-data
-    type: disk

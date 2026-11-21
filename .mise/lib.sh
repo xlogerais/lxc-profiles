@@ -31,6 +31,7 @@ YQ_NORMALIZE='
     }
   + ($p | del(.name, .description, .config, .devices, .used_by, .project))
   | sort_keys(..)
+  | ... comments = ""
   | (.. | select(tag == "!!str")) style = ""
   | (.. | select(tag == "!!str" and test("\n"))) style = "literal"
 '

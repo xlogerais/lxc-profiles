@@ -13,7 +13,7 @@
 description = "Enregistre une démo (demo/<nom>.cast avec autocast, puis demo/<nom>.gif avec agg)"
 usage = '''
 arg "<name>" help="Scénario (demo/<name>.yaml)" {
-  choices "tour" "install"
+  choices "tour" "install" "lxc"
 }
 '''
 run = '''

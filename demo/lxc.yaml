@@ -1,0 +1,35 @@
+# Demo: plain lxc, without mise (the YAML files are regular LXD profiles)
+# (prerequisites: LXD, profile unattended-upgrades not installed; removed at the end)
+settings:
+  width: 156
+  height: 22
+  type_speed: 35ms
+  prompt: "\e[1;34mlxd\e[0m > "
+  timeout: 120s
+  # bash without rc files: the real prompt (PS1) is used to detect the end of commands
+  shell:
+    program: bash
+    args: [--norc, --noprofile]
+    prompt: AUTOCAST_PROMPT
+    line_split: " \\"
+    quit_command: exit
+  environment:
+    - {name: PS1, value: AUTOCAST_PROMPT}
+    - {name: PROMPT_COMMAND, value: "bind 'set enable-bracketed-paste off'"}
+
+instructions:
+  - !Command {command: "source demo/setup.sh", hidden: true}
+  - !Marker Create
+  - !Command {command: "# No mise needed: the YAML files are regular LXD profiles"}
+  - !Command {command: "lxc profile create unattended-upgrades"}
+  - !Command {command: "lxc profile edit unattended-upgrades < profiles/system/unattended-upgrades.profile.yaml"}
+  - !Wait 2s
+  - !Command {command: "lxc profile show unattended-upgrades | head -12"}
+  - !Wait 4s
+  - !Clear
+  - !Marker Use
+  - !Command {command: "# Then use it when launching an instance"}
+  - !Command {command: "# lxc launch ubuntu:24.04 web -p default -p unattended-upgrades"}
+  - !Command {command: "lxc profile list -f compact | grep -E 'NAME|unattended'"}
+  - !Wait 5s
+  - !Command {command: "demo_cleanup", hidden: true}

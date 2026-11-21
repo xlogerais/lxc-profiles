@@ -12,6 +12,7 @@ The `.cast` files can be played in Gitea's file view (asciinema player).
 | Scenario | Demo | Prerequisites |
 |---|---|---|
 | `tour.yaml` | welcome message, `list`, `show`, `diff` (read only) | LXD |
+| `lxc.yaml` | plain `lxc`, without mise: create a profile from its YAML file | LXD, profile `unattended-upgrades` not installed |
 | `install.yaml` | `install`, diff and confirmation after a change in LXD, `import` | LXD, profile `unattended-upgrades` not installed |
 
 ## Recording a demo
@@ -24,10 +25,11 @@ MISE_ENV=demo mise run demo <scenario>   # demo/<scenario>.cast and demo/<scenar
 ```
 
 `setup.sh` is the hidden preamble of every scenario (mise activated, `delta` as
-git pager). `install.yaml` installs the profile `unattended-upgrades` in LXD,
-modifies it and imports it into the repository; its hidden epilogue restores
-the repository file as it was and deletes the profile. The scenario refuses to
-start if that profile is already installed.
+git pager). `lxc.yaml` and `install.yaml` install the profile
+`unattended-upgrades` in LXD (`install.yaml` also modifies it and imports it
+into the repository); their hidden epilogue restores the repository file as it
+was and deletes the profile. These scenarios refuse to start if that profile is
+already installed.
 
 agg draws the text itself, with fonts installed by mise in the demo environment
 (nothing is installed on the system, which can be headless):

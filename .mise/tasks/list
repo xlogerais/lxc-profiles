@@ -44,7 +44,7 @@ while IFS=$'\t' read -r name file; do
     row "✅" "$GREEN" "$name" "$desc" "${used[$name]}" "$file" "$extra"
     same=$((same + 1))
   else
-    row "⚠️" "$YELLOW" "$name" "$desc" "${used[$name]}" "$file" "$extra"
+    row "📝" "$YELLOW" "$name" "$desc" "${used[$name]}" "$file" "$extra"
     changed=$((changed + 1))
   fi
 done < <(repo_index)
@@ -59,4 +59,4 @@ if [ "${usage_all:-false}" = "true" ] && [ "${#others[@]}" -gt 0 ]; then
 fi
 
 echo
-echo "  ✅ ${same} à jour   ⚠️  ${changed} différent(s) ${D}(mise run diff)${R}   ⬜ ${absent} non installé(s)   🔹 ${#others[@]} hors dépôt${D}$([ "${usage_all:-false}" = "true" ] || echo ' (--all)')${R}"
+echo "  ✅ ${same} à jour   📝 ${changed} différent(s) ${D}(mise run diff)${R}   ⬜ ${absent} non installé(s)   🔹 ${#others[@]} hors dépôt${D}$([ "${usage_all:-false}" = "true" ] || echo ' (--all)')${R}"

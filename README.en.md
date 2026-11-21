@@ -33,6 +33,13 @@ repository instead.
 
 ![Install a profile, update it after a change in LXD, import it back](demo/install.gif)
 
+## Tutorials
+
+Step-by-step use cases, from the clone of the repository to a ready instance:
+
+- [Docker in an LXD container](demo/docker/README.en.md): install the
+  `docker-unprivileged` profile, launch an instance and use Docker.
+
 ## Usage
 
 Profiles can be used with the `lxc` client alone; [mise](https://mise.jdx.dev)

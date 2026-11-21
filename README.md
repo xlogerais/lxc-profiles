@@ -34,6 +34,13 @@ la modification dans le dépôt.
 
 ![Installation d'un profil, mise à jour après une modification dans LXD, puis import](demo/install.gif)
 
+## Tutoriels
+
+Des cas d'usage pas à pas, du clone du dépôt à une instance prête à servir :
+
+- [Docker dans un conteneur LXD](demo/docker/README.md) : installer le profil
+  `docker-unprivileged`, lancer une instance et utiliser Docker.
+
 ## Utilisation
 
 Les profils s'utilisent avec le seul client `lxc` ; [mise](https://mise.jdx.dev)

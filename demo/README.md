@@ -16,6 +16,8 @@ Les fichiers `.cast` se lisent dans la vue fichier de Gitea (lecteur asciinema).
 | `tour.yaml` | message d'accueil, `list`, `show`, `diff` (lecture seule) | LXD |
 | `lxc.yaml` | `lxc` seul, sans mise : création d'un profil à partir de son fichier YAML | LXD, profil `unattended-upgrades` non installé |
 | `install.yaml` | `install`, diff et confirmation après une modification dans LXD, `import` | LXD, profil `unattended-upgrades` non installé |
+| `docker/install.yaml` | [tutoriel Docker](docker/README.md) : clone du dépôt, installation du profil `docker-unprivileged`, lancement d'une instance et suivi de cloud-init | LXD, mise, ni instance `docker` ni profil `docker-unprivileged` |
+| `docker/usage.yaml` | [tutoriel Docker](docker/README.md) : `lxc exec`, puis `lxc shell` et commandes Docker dans l'instance | LXD, mise |
 
 ## Enregistrer une démo
 
@@ -32,6 +34,17 @@ comme pager de git). `lxc.yaml` et `install.yaml` installent le profil
 dans le dépôt) ; leur épilogue masqué remet le fichier du dépôt dans son état
 d'origine et supprime le profil. Ces scénarios refusent de démarrer si ce
 profil est déjà installé.
+
+Les scénarios d'un tutoriel sont rangés dans un sous-dossier (`docker/`), avec
+leur propre préambule `setup.sh` : il crée ou vérifie ce dont le scénario a
+besoin (instance, profil, clone du dépôt dans un dossier temporaire) et son
+épilogue supprime ce que la démo a créé. Ces scénarios laissent le shell
+afficher lui-même son prompt (`prompt: ""` côté autocast), pour que le shell
+root de l'instance ouvert par `lxc shell` garde le sien.
+
+`castfix.py` retouche chaque enregistrement : il remet le prompt du shell que
+autocast efface (au début et après un `!Clear`) et accélère les points de
+progression de `cloud-init status --wait`.
 
 agg dessine lui-même le texte, avec des polices installées par mise dans
 l'environnement de démo (rien n'est installé sur le système, qui peut être

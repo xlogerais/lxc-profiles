@@ -20,6 +20,40 @@ config:
     #     shell: /bin/bash
     #     sudo: ['ALL=(ALL) NOPASSWD:ALL']
 
+    write_files:
+      - path: /usr/local/bin/gitea-db-dump.sh
+        permissions: '0755'
+        content: |
+          #!/bin/sh
+          set -eu
+          D=/var/snap/gitea/common/dump
+          mkdir -p "$D"
+          F="$D/gitea-db-$(date +%Y%m%d-%H%M).tar"
+          /snap/bin/gitea dump --skip-repository --skip-lfs-data --skip-attachment-data --skip-package-data --skip-log --skip-custom-dir --skip-index --type tar --file "$F.tmp"
+          mv "$F.tmp" "$F"
+          ls -1t "$D"/gitea-db-*.tar | tail -n +25 | xargs -r rm -f --
+      - path: /etc/systemd/system/gitea-db-dump.service
+        content: |
+          [Unit]
+          Description=Dump de la base Gitea
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/local/bin/gitea-db-dump.sh
+      - path: /etc/systemd/system/gitea-db-dump.timer
+        content: |
+          [Unit]
+          Description=Dump horaire de la base Gitea
+
+          [Timer]
+          OnCalendar=*:50
+          Persistent=true
+
+          [Install]
+          WantedBy=timers.target
+
     runcmd:
+      - systemctl daemon-reload
+      - systemctl enable --now gitea-db-dump.timer
       # Install gitea
       - [ snap, install, gitea ]

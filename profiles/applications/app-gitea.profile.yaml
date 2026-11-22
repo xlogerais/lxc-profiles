@@ -26,12 +26,12 @@ config:
         content: |
           #!/bin/sh
           set -eu
-          D=/var/snap/gitea/common/dump
-          mkdir -p "$D"
-          F="$D/gitea-db-$(date +%Y%m%d-%H%M).tar"
-          /snap/bin/gitea dump --skip-repository --skip-lfs-data --skip-attachment-data --skip-package-data --skip-log --skip-custom-dir --skip-index --type tar --file "$F.tmp"
-          mv "$F.tmp" "$F"
-          ls -1t "$D"/gitea-db-*.tar | tail -n +25 | xargs -r rm -f --
+          DIRECTORY=/var/snap/gitea/common/dump
+          mkdir -p "${DIRECTORY}"
+          FILE="${DIRECTORY}/gitea-db-$(date +%Y%m%d-%H%M).tar"
+          /snap/bin/gitea dump --skip-repository --skip-lfs-data --skip-attachment-data --skip-package-data --skip-log --skip-custom-dir --skip-index --type tar --file "${FILE}.tmp"
+          mv "${FILE}.tmp" "${FILE}"
+          ls -1t "${DIRECTORY}"/gitea-db-*.tar | tail -n +25 | xargs -r rm -f --
       - path: /etc/systemd/system/gitea-db-dump.service
         content: |
           [Unit]

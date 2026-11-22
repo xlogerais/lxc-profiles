@@ -1,5 +1,5 @@
 name: size-medium
-description: "Medium sized instance limits"
-limits:
-  cpu: 2
-  memory: 4GB
+description: Medium sized instance limits (2 CPU, 4GB RAM)
+config:
+  limits.cpu: "2"
+  limits.memory: 4GB

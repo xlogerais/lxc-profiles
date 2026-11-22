@@ -1,0 +1,9 @@
+name: volume-gitea-data-ro
+description: Volume des données Gitea en lecture seule (instance de backup)
+devices:
+  gitea-data:
+    path: /backup/gitea-data
+    pool: zfs
+    source: gitea-data
+    readonly: "true"
+    type: disk

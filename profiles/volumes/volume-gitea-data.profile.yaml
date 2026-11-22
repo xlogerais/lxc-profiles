@@ -1,0 +1,8 @@
+name: volume-gitea-data
+description: Volume des données Gitea (snapshots quotidiens portés par le volume)
+devices:
+  gitea-data:
+    path: /var/snap/gitea/common
+    pool: zfs
+    source: gitea-data
+    type: disk

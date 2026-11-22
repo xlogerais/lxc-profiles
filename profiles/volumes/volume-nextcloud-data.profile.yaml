@@ -1,0 +1,8 @@
+name: volume-nextcloud-data
+description: Volume des données Nextcloud (snapshots quotidiens portés par le volume)
+devices:
+  nextcloud-data:
+    path: /var/snap/nextcloud
+    pool: zfs
+    source: nextcloud-data
+    type: disk

@@ -1,0 +1,66 @@
+name: app-nextcloud
+description: Install Nextcloud
+config:
+  cloud-init.vendor-data: |
+    #cloud-config
+
+    # Regional settings
+    timezone: Europe/Paris
+    locale: fr_FR.UTF-8
+
+    # Packages
+    package_update: true
+    package_upgrade: true
+    packages: []
+
+    # Users
+    users:
+      - default
+      - name: nextcloud
+        groups: sudo
+        shell: /bin/bash
+        sudo: ['ALL=(ALL) NOPASSWD:ALL']
+
+    write_files:
+      # The dump goes through a pipe: the snap's AppArmor profile prevents
+      # nextcloud.mysqldump from writing to a redirected file (empty dump).
+      # Plain SQL, not gzipped, so that restic deduplicates between dumps
+      # (a gzipped dump is uploaded in full each time).
+      # Every 4 hours, the last 24 hours are kept here.
+      - path: /usr/local/bin/nextcloud-db-dump.sh
+        permissions: '0755'
+        content: |
+          #!/bin/bash
+          set -euo pipefail
+          DIRECTORY=/var/snap/nextcloud/common/dump
+          mkdir -p "${DIRECTORY}"
+          FILE="${DIRECTORY}/nextcloud-db-$(date +%Y%m%d-%H%M).sql"
+          /snap/bin/nextcloud.mysqldump --single-transaction --skip-lock-tables | cat > "${FILE}.tmp"
+          mv "${FILE}.tmp" "${FILE}"
+          ls -1t "${DIRECTORY}"/nextcloud-db-*.sql | tail -n +7 | xargs -r rm -f --
+      - path: /etc/systemd/system/nextcloud-db-dump.service
+        content: |
+          [Unit]
+          Description=Dump de la base Nextcloud
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/local/bin/nextcloud-db-dump.sh
+      - path: /etc/systemd/system/nextcloud-db-dump.timer
+        content: |
+          [Unit]
+          Description=Dump de la base Nextcloud toutes les 4 heures
+
+          [Timer]
+          OnCalendar=*-*-* 00/4:30
+          Persistent=true
+
+          [Install]
+          WantedBy=timers.target
+
+    runcmd:
+      # Install Nextcloud
+      - [ snap, install, nextcloud ]
+      # Enable the DB dump timer once Nextcloud is installed
+      - systemctl daemon-reload
+      - systemctl enable --now nextcloud-db-dump.timer

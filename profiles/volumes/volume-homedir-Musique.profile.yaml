@@ -1,0 +1,9 @@
+name: volume-homedir-Musique
+description: Volume montant le dossier Musique du homedir du host (à utiliser avec app-streamrip)
+config:
+  raw.idmap: both 1000 1000
+devices:
+  musique:
+    type: disk
+    source: /home/xavier/Musique
+    path: /home/rip/Musique

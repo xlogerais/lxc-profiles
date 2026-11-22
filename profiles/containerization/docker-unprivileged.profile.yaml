@@ -1,0 +1,18 @@
+name: docker-unprivileged
+description: "A profile that deploy docker in an unprivileged LXD container"
+config:
+  linux.kernel_modules: overlay
+  security.nesting: "true"
+  # Requis pour les images dont les couches créent des device nodes ou des xattrs
+  security.syscalls.intercept.mknod: "true"
+  security.syscalls.intercept.setxattr: "true"
+  cloud-init.vendor-data: |
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+    packages:
+      - curl
+    runcmd:
+      - curl https://get.docker.com | sh
+    timezone: Europe/Paris
+    locale: fr_FR.UTF-8

@@ -1,0 +1,7 @@
+name: storage-btrfs
+description: root device on btrfs pool
+devices:
+  root:
+    path: /
+    pool: btrfs
+    type: disk

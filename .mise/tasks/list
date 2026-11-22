@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+#MISE description="Liste les profils du dépôt et leur état dans LXD"
+#MISE quiet=true
+#USAGE flag "-a --all" help="Affiche aussi les profils installés dans LXD absents du dépôt"
+set -euo pipefail
+source "$MISE_PROJECT_ROOT/.mise/lib.sh"
+
+installed=$(lxc profile list --format yaml 2>/dev/null) || die "Impossible d'interroger LXD (lxc profile list)"
+
+declare -A used lxd_desc
+while IFS=$'\t' read -r n u d; do
+  used[$n]=$u
+  lxd_desc[$n]=$d
+done < <(yq -r '.[] | [.name, (.used_by | length), (.description // "")] | @tsv' <<<"$installed")
+
+index=$(repo_index)
+
+# Description tronquée pour tenir dans sa colonne : dans un terminal, la largeur
+# restante une fois les autres colonnes placées (entre 20 et 60), sinon 50.
+DESC_WIDTH=50
+if [ -t 1 ] && cols=$(tput cols 2>/dev/null); then
+  file_width=$(awk -F'\t' '{ if (length($2) > m) m = length($2) } END { print m + 0 }' <<<"$index")
+  # 39 = marge, icône, nom (24), « utilisé » (7) et espaces entre colonnes
+  DESC_WIDTH=$((cols - 39 - file_width))
+  DESC_WIDTH=$((DESC_WIDTH < 20 ? 20 : DESC_WIDTH > 60 ? 60 : DESC_WIDTH))
+fi
+short() {
+  local d="${1//$'\n'/ }"
+  if [ "${#d}" -gt "$DESC_WIDTH" ]; then d="${d:0:$((DESC_WIDTH - 1))}…"; fi
+  printf '%s' "$d"
+}
+
+# Ligne : icône, couleur du nom, nom, description, utilisé, fichier, suffixe.
+row() {
+  printf "  %s %s%-24s${R} ${D}%s${R}%*s %-7s ${D}%s${R}%s\n" \
+    "$1" "$2" "$3" "$4" $((DESC_WIDTH - ${#4})) "" "$5" "$6" "${7:-}"
+}
+
+declare -A seen
+same=0; changed=0; absent=0
+printf "  ${B}   %-24s %-${DESC_WIDTH}s %-7s %s${R}\n" "PROFIL" "DESCRIPTION" "UTILISÉ" "FICHIER"
+while IFS=$'\t' read -r name file; do
+  desc=$(short "$(yq -r '.description // ""' "$MISE_PROJECT_ROOT/$file")")
+  extra=""
+  if [ -n "${seen[$name]:-}" ]; then
+    extra=" ${RED}(nom en double : ${seen[$name]})${R}"
+  fi
+  seen[$name]=$file
+  if [ -z "${used[$name]+x}" ]; then
+    row "⬜" "$D" "$name" "$desc" "-" "$file" "$extra"
+    absent=$((absent + 1))
+  elif is_same "$file" "$name"; then
+    row "✅" "$GREEN" "$name" "$desc" "${used[$name]}" "$file" "$extra"
+    same=$((same + 1))
+  else
+    row "📝" "$YELLOW" "$name" "$desc" "${used[$name]}" "$file" "$extra"
+    changed=$((changed + 1))
+  fi
+done <<<"$index"
+
+others=()
+for n in "${!used[@]}"; do [ -n "${seen[$n]:-}" ] || others+=("$n"); done
+if [ "${usage_all:-false}" = "true" ] && [ "${#others[@]}" -gt 0 ]; then
+  printf "\n  ${B}Hors dépôt${R} ${D}(mise run import <profil>)${R}\n"
+  while IFS= read -r n; do
+    row "🔹" "$CYAN" "$n" "$(short "${lxd_desc[$n]}")" "${used[$n]}" ""
+  done < <(printf '%s\n' "${others[@]}" | sort)
+fi
+
+echo
+hint_all=""; [ "${usage_all:-false}" = "true" ] || hint_all=" ${D}(--all)${R}"
+echo "  ${B}Légende :${R}"
+echo "    • ✅ à jour (${same})"
+echo "    • 📝 installé, différent du dépôt (${changed}) ${D}→ mise run diff${R}"
+echo "    • ⬜ non installé (${absent})"
+echo "    • 🔹 installé, absent du dépôt (${#others[@]})${hint_all}"

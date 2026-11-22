@@ -1,0 +1,44 @@
+# Demo: restic on the command line in the backup instance, then restore a lost file of the app instance
+# (prerequisites: LXD, mise; everything created and configured if missing, then removed at the end)
+settings:
+  width: 156
+  height: 40
+  type_speed: 35ms
+  # Empty: the prompts are the shell's own (PS1), so that the instance's root shell keeps its own prompt
+  prompt: ""
+  timeout: 300s
+  # bash without rc files: the real prompt (PS1) is used to detect the end of commands
+  shell:
+    program: bash
+    args: [--norc, --noprofile]
+    prompt: AUTOCAST_PROMPT
+    line_split: " \\"
+    quit_command: exit
+  environment:
+    - {name: PS1, value: "\\[\\e[1;34m\\]lxd\\[\\e[0m\\] > AUTOCAST_PROMPT"}
+    - {name: PROMPT_COMMAND, value: "bind 'set enable-bracketed-paste off'"}
+    - {name: TERM, value: xterm-256color}
+
+instructions:
+  - !Command {command: "source demo/backrest/setup.sh restore", hidden: true}
+  - !Marker Restic
+  - !Command {command: "# restic is available in the backup instance, next to Backrest"}
+  - !Command {command: "lxc shell backrest"}
+  - !Command {command: "export RESTIC_REPOSITORY=/backups/restic RESTIC_PASSWORD=demo-repo-password"}
+  - !Command {command: "restic snapshots"}
+  - !Wait 2s
+  - !Command {command: "restic ls latest /backup/app-data --recursive | head -12"}
+  - !Wait 2s
+  - !Command {command: "restic stats latest"}
+  - !Command {command: "exit"}
+  - !Wait 3s
+  - !Clear
+  - !Marker Restore
+  - !Command {command: "# Oops: a file of the app instance is lost"}
+  - !Command {command: "lxc exec app -- rm /srv/app/notes.txt"}
+  - !Command {command: "lxc exec app -- cat /srv/app/notes.txt"}
+  - !Command {command: "# restic dump writes it from the latest snapshot, lxc file push puts it back"}
+  - !Command {command: "lxc exec backrest --env RESTIC_PASSWORD=demo-repo-password -- restic --repo /backups/restic dump latest /backup/app-data/notes.txt | lxc file push --uid 0 --gid 0 --mode 0644 - app/srv/app/notes.txt"}
+  - !Command {command: "lxc exec app -- cat /srv/app/notes.txt"}
+  - !Wait 6s
+  - !Command {command: "demo_cleanup", hidden: true}

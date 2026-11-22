@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="(interne) Noms des profils du dépôt, pour l'autocomplétion"
+#MISE hide=true
+source "$MISE_PROJECT_ROOT/.mise/lib.sh"
+repo_index | cut -f1 | uniq

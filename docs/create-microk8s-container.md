@@ -6,13 +6,13 @@ Install the microk8s profile :
 
 ```bash
 lxc profile create microk8s
-curl https://gitea.cloud.logerais.com/cloud.logerais.com/lxd-profiles/raw/branch/main/profiles/containerization/microk8s.profile.yaml | lxc profile edit microk8s
+curl https://gitea.cloud.logerais.com/xavier/lxd-profiles/raw/branch/main/profiles/containerization/microk8s.profile.yaml | lxc profile edit microk8s
 ```
 
 Or use the local profile:
 
 ```bash
-./install.bash profiles/containerization/microk8s.profile.yaml
+mise run install profiles/containerization/microk8s.profile.yaml
 ```
 
 ## Launch Container

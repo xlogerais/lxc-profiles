@@ -1,4 +1,3 @@
----
 name: user-xavier
 description: Personnal environment for Xavier
 config:
@@ -12,8 +11,13 @@ config:
     package_update: true
     package_upgrade: true
     packages:
+      - unattended-upgrades
+      - apt-listchanges
+      - curl
       - git
+      - avahi-daemon
 
+    # Utilisateurs
     users:
       - name: xavier
         groups: sudo
@@ -23,6 +27,6 @@ config:
           - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBlon0OAAt/wQmuP/BDY/m4qJgUgNY1a7xXUgPpfCXe4 xavier@intel-nuc-hades-canyon
           - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMi/CnrkifO0e78Oj1tdLTILc4yuJ18em4W/2fDte9Kq ubuntu@cloud.logerais.com
 
+    # Bootstrap de l'environnement
     runcmd:
-      - su - xavier -c "git clone https://gitea.cloud.logerais.com/xavier/config-bootstrap.git ~/.bootstrap"
-      - su - xavier -c "bash ~/.bootstrap/bootstrap.bash"
+          - [ su, -, xavier, -c, 'sh -c "$(curl -fsLS get.chezmoi.io/lb)" -- init --apply https://gitea.cloud.logerais.com/xavier/config-chezmoi.git' ]

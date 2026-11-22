@@ -1,0 +1,60 @@
+name: app-gitea
+description: Install gitea
+config:
+  cloud-init.vendor-data: |
+    #cloud-config
+
+    timezone: Europe/Paris
+    locale: fr_FR.UTF-8
+
+    # Packages
+    package_update: true
+    package_upgrade: true
+    packages:
+      - unzip
+
+    # users:
+    #   - default
+    #   - name: gitea
+    #     groups: sudo
+    #     shell: /bin/bash
+    #     sudo: ['ALL=(ALL) NOPASSWD:ALL']
+
+    write_files:
+      - path: /usr/local/bin/gitea-db-dump.sh
+        permissions: '0755'
+        content: |
+          #!/bin/sh
+          set -eu
+          DIRECTORY=/var/snap/gitea/common/dump
+          mkdir -p "${DIRECTORY}"
+          FILE="${DIRECTORY}/gitea-db-$(date +%Y%m%d-%H%M).tar"
+          /snap/bin/gitea dump --skip-repository --skip-lfs-data --skip-attachment-data --skip-package-data --skip-log --skip-custom-dir --skip-index --type tar --file "${FILE}.tmp"
+          mv "${FILE}.tmp" "${FILE}"
+          ls -1t "${DIRECTORY}"/gitea-db-*.tar | tail -n +25 | xargs -r rm -f --
+      - path: /etc/systemd/system/gitea-db-dump.service
+        content: |
+          [Unit]
+          Description=Dump de la base Gitea
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/local/bin/gitea-db-dump.sh
+      - path: /etc/systemd/system/gitea-db-dump.timer
+        content: |
+          [Unit]
+          Description=Dump horaire de la base Gitea
+
+          [Timer]
+          OnCalendar=*:50
+          Persistent=true
+
+          [Install]
+          WantedBy=timers.target
+
+    runcmd:
+      # Install gitea
+      - [ snap, install, gitea ]
+      # Enable the DB dump timer once gitea is installed
+      - systemctl daemon-reload
+      - systemctl enable --now gitea-db-dump.timer

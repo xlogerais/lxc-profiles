@@ -1,0 +1,44 @@
+# Demo: using Docker in the LXD instance, with lxc exec then from a shell in the instance
+# (prerequisites: LXD, mise; instance "docker" created with its profile if missing, then removed at the end)
+settings:
+  width: 156
+  height: 36
+  type_speed: 35ms
+  # Empty: the prompts are the shell's own (PS1), so that the instance's root shell keeps its own prompt
+  prompt: ""
+  timeout: 300s
+  # bash without rc files: the real prompt (PS1) is used to detect the end of commands
+  shell:
+    program: bash
+    args: [--norc, --noprofile]
+    prompt: AUTOCAST_PROMPT
+    line_split: " \\"
+    quit_command: exit
+  environment:
+    - {name: PS1, value: "\\[\\e[1;34m\\]lxd\\[\\e[0m\\] > AUTOCAST_PROMPT"}
+    - {name: PROMPT_COMMAND, value: "bind 'set enable-bracketed-paste off'"}
+    - {name: TERM, value: xterm-256color}
+
+instructions:
+  - !Command {command: "source demo/docker/setup.sh usage", hidden: true}
+  - !Marker Exec
+  - !Command {command: "# Run a command in the instance from the host"}
+  - !Command {command: "lxc exec docker -- docker run --rm hello-world"}
+  - !Wait 4s
+  - !Clear
+  - !Marker Shell
+  - !Command {command: "# Or open a shell in the instance and use Docker as on any machine"}
+  - !Command {command: "lxc shell docker"}
+  - !Command {command: "docker run --detach --name web --publish 8080:80 nginx:alpine"}
+  - !Wait 2s
+  - !Command {command: "clear"}
+  - !Command {command: "docker image ls"}
+  - !Command {command: "docker ps"}
+  - !Wait 3s
+  - !Command {command: "docker top web --format pid,user,args"}
+  - !Command {command: "docker stats --no-stream"}
+  - !Wait 3s
+  - !Command {command: "curl --silent localhost:8080 | grep title"}
+  - !Command {command: "exit"}
+  - !Wait 5s
+  - !Command {command: "demo_cleanup", hidden: true}

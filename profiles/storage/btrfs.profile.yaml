@@ -1,7 +1,0 @@
-name: btrfs
-description: "root device on btrfs pool"
-devices:
-  root:
-    type: disk
-    pool: btrfs
-    path: /

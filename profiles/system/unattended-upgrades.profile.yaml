@@ -1,6 +1,5 @@
 name: unattended-upgrades
-description: "Profil pour activer les unattended upgrades sur Ubuntu"
-devices: {}
+description: Profil pour activer les unattended upgrades sur Ubuntu
 config:
   cloud-init.vendor-data: |
     #cloud-config

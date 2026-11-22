@@ -1,0 +1,11 @@
+name: proxy-stun-turn
+description: Proxify STUN /TURN
+devices:
+  hostport3478udp:
+    type: proxy
+    listen: udp:0.0.0.0:3478
+    connect: udp:127.0.0.1:3478
+  hostport3478tcp:
+    type: proxy
+    listen: tcp:0.0.0.0:3478
+    connect: tcp:127.0.0.1:3478

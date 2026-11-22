@@ -1,8 +1,0 @@
-name: certificates
-description: "Volume to mount letsencrypt certificates from host"
-devices:
-  certificates:
-    path: /certificates
-    shift: "true"
-    source: /etc/letsencrypt/live
-    type: disk

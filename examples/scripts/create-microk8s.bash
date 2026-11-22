@@ -5,7 +5,7 @@ CONTAINER_NAME="${1:-microk8s-container}"
 echo "Creating microk8s container: $CONTAINER_NAME"
 
 # Install the profile using the helper script
-./install.bash profiles/containerization/microk8s.profile.yaml
+mise run install profiles/containerization/microk8s.profile.yaml
 
 # Launch the container
 lxc launch ubuntu:lts -p default -p microk8s "$CONTAINER_NAME"

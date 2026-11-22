@@ -1,0 +1,9 @@
+name: volume-homedir
+description: Volume montant le homedir du host (/home/xavier)
+config:
+  raw.idmap: both 1000 1000
+devices:
+  homedir:
+    type: disk
+    source: /home/xavier
+    path: /home/xavier

@@ -6,13 +6,13 @@ Install the traefik profile :
 
 ```bash
 lxc profile create traefik
-curl https://gitea.cloud.logerais.com/cloud.logerais.com/lxd-profiles/raw/branch/main/profiles/applications/traefik.profile.yaml | lxc profile edit traefik
+curl https://gitea.cloud.logerais.com/xavier/lxd-profiles/raw/branch/main/profiles/applications/traefik.profile.yaml | lxc profile edit traefik
 ```
 
 Or use the local profile:
 
 ```bash
-./install.bash profiles/applications/traefik.profile.yaml
+mise run install profiles/applications/traefik.profile.yaml
 ```
 
 ## Launch Container
@@ -24,7 +24,7 @@ Create the container with required profiles:
 lxc init ubuntu:lts -p default -p traefik traefik-container
 
 # Or with additional profiles for production use:
-# lxc init ubuntu:lts -p default -p zfs -p net-front -p traefik -p traefik-volume-config traefik-container
+# lxc init ubuntu:lts -p default -p storage-zfs -p net-front -p traefik -p traefik-volume-config traefik-container
 ```
 
 ### Fix IP Address (Optional)

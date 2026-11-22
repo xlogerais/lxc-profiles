@@ -46,6 +46,9 @@ Des cas d'usage pas à pas, du clone du dépôt à une instance prête à servir
 
 - [Docker dans un conteneur LXD](demo/docker/README.md) : installer le profil
   `docker-unprivileged`, lancer une instance et utiliser Docker.
+- [Sauvegarder ses instances LXD avec Backrest](demo/backrest/README.md) : une
+  instance de sauvegarde qui lit les volumes des autres en lecture seule,
+  configurée depuis l'interface web, puis restic en ligne de commande.
 
 ## Utilisation
 

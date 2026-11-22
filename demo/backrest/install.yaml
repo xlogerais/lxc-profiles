@@ -1,0 +1,51 @@
+# Demo: a backup instance with Backrest, reading the data of another instance through a read-only volume
+# (prerequisites: LXD, mise, no instance backrest nor app, no profile app-backrest, no volume backups nor app-data;
+#  all created, then removed at the end)
+settings:
+  width: 156
+  height: 50
+  type_speed: 35ms
+  # Empty: the prompts are the shell's own (PS1), so that the instance's root shell keeps its own prompt
+  prompt: ""
+  timeout: 300s
+  # bash without rc files: the real prompt (PS1) is used to detect the end of commands
+  shell:
+    program: bash
+    args: [--norc, --noprofile]
+    prompt: AUTOCAST_PROMPT
+    line_split: " \\"
+    quit_command: exit
+  environment:
+    - {name: PS1, value: "\\[\\e[1;34m\\]lxd\\[\\e[0m\\] > AUTOCAST_PROMPT"}
+    - {name: PROMPT_COMMAND, value: "bind 'set enable-bracketed-paste off'"}
+    - {name: TERM, value: xterm-256color}
+
+instructions:
+  - !Command {command: "source demo/backrest/setup.sh install", hidden: true}
+  - !Marker Profile
+  - !Command {command: "# The Backrest profile: a systemd service, Backrest and restic downloaded at first boot"}
+  - !Command {command: "mise run show app-backrest"}
+  - !Wait 5s
+  - !Command {command: "mise run install app-backrest"}
+  - !Wait 2s
+  - !Clear
+  - !Marker Volumes
+  - !Command {command: "# The data to protect: the app-data volume of the app instance"}
+  - !Command {command: "lxc storage volume list default type=custom --columns nu"}
+  - !Command {command: "lxc exec app -- ls /srv/app"}
+  - !Wait 2s
+  - !Command {command: "# A dedicated volume for the restic repository"}
+  - !Command {command: "lxc storage volume create default backups size=20GiB"}
+  - !Wait 2s
+  - !Clear
+  - !Marker Launch
+  - !Command {command: "# The backup instance: the repository volume, and the data volume read-only"}
+  - !Command {command: "lxc launch ubuntu:lts backrest --profile default --profile app-backrest"}
+  - !Command {command: "lxc config device add backrest backups disk pool=default source=backups path=/backups"}
+  - !Command {command: "lxc config device add backrest app-data disk pool=default source=app-data path=/backup/app-data readonly=true"}
+  - !Command {command: "lxc exec backrest -- cloud-init status --wait --long"}
+  - !Command {command: "lxc exec backrest -- systemctl is-active backrest"}
+  - !Command {command: "# The web UI listens on port 9898 of the instance"}
+  - !Command {command: "lxc list backrest --columns ns4"}
+  - !Wait 6s
+  - !Command {command: "demo_cleanup", hidden: true}
